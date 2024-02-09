@@ -7,7 +7,9 @@ import { Telegraf } from 'telegraf';
 import { I18nContext } from '@grammyjs/i18n';
 import { MainContext } from '../bot/start';
 
-exports.attemptPendingPayments = async (bot: Telegraf<MainContext>): Promise<void> => {
+exports.attemptPendingPayments = async (
+  bot: Telegraf<MainContext>
+): Promise<void> => {
   const pendingPayments = await PendingPayment.find({
     paid: false,
     attempts: { $lt: process.env.PAYMENT_ATTEMPTS },
@@ -25,10 +27,14 @@ exports.attemptPendingPayments = async (bot: Telegraf<MainContext>): Promise<voi
         return;
       }
       // We check if the old payment is on flight
-      const isPendingOldPayment: boolean = await isPendingPayment(order.buyer_invoice);
+      const isPendingOldPayment: boolean = await isPendingPayment(
+        order.buyer_invoice
+      );
 
       // We check if this new payment is on flight
-      const isPending: boolean = await isPendingPayment(pending.payment_request);
+      const isPending: boolean = await isPendingPayment(
+        pending.payment_request
+      );
 
       // If one of the payments is on flight we don't do anything
       if (isPending || isPendingOldPayment) return;
@@ -111,7 +117,9 @@ exports.attemptPendingPayments = async (bot: Telegraf<MainContext>): Promise<voi
   }
 };
 
-exports.attemptCommunitiesPendingPayments = async (bot: Telegraf<MainContext>): Promise<void> => {
+exports.attemptCommunitiesPendingPayments = async (
+  bot: Telegraf<MainContext>
+): Promise<void> => {
   const pendingPayments = await PendingPayment.find({
     paid: false,
     attempts: { $lt: process.env.PAYMENT_ATTEMPTS },
@@ -124,7 +132,9 @@ exports.attemptCommunitiesPendingPayments = async (bot: Telegraf<MainContext>): 
       pending.attempts++;
 
       // We check if this new payment is on flight
-      const isPending: boolean = await isPendingPayment(pending.payment_request);
+      const isPending: boolean = await isPendingPayment(
+        pending.payment_request
+      );
 
       // If the payments is on flight we don't do anything
       if (isPending) return;

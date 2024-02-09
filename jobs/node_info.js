@@ -3,9 +3,9 @@ const { logger } = require('../logger');
 
 const info = async bot => {
   try {
-    const config = await Config.findOne({}) || new Config();
+    const config = (await Config.findOne({})) || new Config();
     config.node_status = 'up';
-    config.node_uri = "https://example.com";
+    config.node_uri = 'https://example.com';
     await config.save();
   } catch (error) {
     const message = error.toString();

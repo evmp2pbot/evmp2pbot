@@ -40,8 +40,4 @@ const cancelHoldInvoice = async ({ hash }: { hash: string }) => {
   }
 };
 
-export {
-  createHoldInvoice,
-  settleHoldInvoice,
-  cancelHoldInvoice,
-};
+export { createHoldInvoice, settleHoldInvoice, cancelHoldInvoice };

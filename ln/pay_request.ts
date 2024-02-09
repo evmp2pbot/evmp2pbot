@@ -24,7 +24,7 @@ const payRequest = async ({
       confirmed_at: new Date(),
       id: request,
       fee: 0,
-    }
+    };
   } catch (error) {
     logger.error(`payRequest: ${error?.toString()}`);
     return false;

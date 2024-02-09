@@ -9,8 +9,9 @@ const logger = winston.createLogger({
     }),
     winston.format.colorize(),
     winston.format.printf(info => {
-      return `[${info.timestamp}] ${info.level}: ${info.message} ${info.stack ? info.stack : ''
-        }`;
+      return `[${info.timestamp}] ${info.level}: ${info.message} ${
+        info.stack ? info.stack : ''
+      }`;
     })
   ),
   levels: winston.config.syslog.levels,
@@ -22,6 +23,5 @@ const logger = winston.createLogger({
   ],
   exitOnError: false,
 });
-
 
 export { logger };

@@ -9,9 +9,7 @@ import { getUserI18nContext, getEmojiRate, decimalRound } from '../util';
 import { logger } from '../logger';
 import { MainContext } from '../bot/start';
 
-
-function onInvoiceUpdated(...args: any) {
-}
+function onInvoiceUpdated(...args: any) {}
 const subscribeInvoice = async (
   bot: MainContext,
   id: string,

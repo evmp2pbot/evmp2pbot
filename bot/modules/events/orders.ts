@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { EventHandler } from ".";
-import { IOrder } from "../../../models/order";
+import { EventHandler } from '.';
+import { IOrder } from '../../../models/order';
 import * as Events from './index';
 
 const TYPES = {
@@ -15,7 +15,8 @@ export const orderCreated = (order: IOrder) => {
     payload: order,
   });
 };
-export const onOrderCreated = (fn: EventHandler) => Events.subscribe(TYPES.ORDER_CREATED, fn);
+export const onOrderCreated = (fn: EventHandler) =>
+  Events.subscribe(TYPES.ORDER_CREATED, fn);
 
 export const orderTaken = (order: IOrder) => {
   Events.dispatch({
@@ -23,4 +24,5 @@ export const orderTaken = (order: IOrder) => {
     payload: order,
   });
 };
-export const onOrderTaken = (fn: EventHandler) => Events.subscribe(TYPES.ORDER_TAKEN, fn);
+export const onOrderTaken = (fn: EventHandler) =>
+  Events.subscribe(TYPES.ORDER_TAKEN, fn);

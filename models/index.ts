@@ -5,11 +5,4 @@ import Community from './community';
 import Dispute from './dispute';
 import Config from './config';
 
-export {
-  User,
-  Order,
-  PendingPayment,
-  Community,
-  Dispute,
-  Config,
-};
+export { User, Order, PendingPayment, Community, Dispute, Config };

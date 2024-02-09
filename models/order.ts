@@ -15,12 +15,12 @@ export interface IOrder extends Document {
   seller_id: string;
   buyer_id: string;
   buyer_invoice: string;
-  buyer_dispute: boolean
-  seller_dispute: boolean
+  buyer_dispute: boolean;
+  seller_dispute: boolean;
   buyer_cooperativecancel: boolean;
   seller_cooperativecancel: boolean;
-  canceled_by: string
-  action_by: string
+  canceled_by: string;
+  action_by: string;
   status: string;
   type: string;
   fiat_amount: number;

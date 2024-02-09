@@ -1,4 +1,3 @@
-
 import { logger } from '../logger';
 
 const resubscribeInvoices = async () => {
