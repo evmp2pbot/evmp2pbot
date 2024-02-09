@@ -735,9 +735,14 @@ const checkOrderMessage = async (
   seller: UserDocument
 ) => {
   try {
-    let message = getDetailedOrder(ctx.i18n as unknown as I18nFix, order, buyer, seller);
+    let message = getDetailedOrder(
+      ctx.i18n as unknown as I18nFix,
+      order,
+      buyer,
+      seller
+    );
     if (!message) {
-      console.warn("getDetailedOrder returned no message");
+      console.warn('getDetailedOrder returned no message');
       return;
     }
     message += `\n\n`;
@@ -1291,7 +1296,7 @@ const sellerPaidHoldMessage = async (ctx: MainContext, user: UserDocument) => {
 const showInfoMessage = async (
   ctx: MainContext,
   user: UserDocument,
-  config: IConfig
+  config?: IConfig
 ) => {
   try {
     // user info
@@ -1310,8 +1315,8 @@ const showInfoMessage = async (
     });
 
     // node info
-    const status = config.node_status == 'up' ? '🟢' : '🔴';
-    const node_uri = sanitizeMD(config.node_uri);
+    const status = config?.node_status == 'up' ? '🟢' : '🔴';
+    const node_uri = sanitizeMD(config?.node_uri ?? '<unknown>');
     let bot_fee = (Number(process.env.MAX_FEE) * 100).toString() + '%';
     bot_fee = bot_fee.replace('.', '\\.');
     let routing_fee =
@@ -1563,7 +1568,12 @@ const expiredOrderMessage = async (
   i18n: I18nContext
 ) => {
   try {
-    const detailedOrder = getDetailedOrder(i18n as unknown as I18nFix, order, buyerUser, sellerUser);
+    const detailedOrder = getDetailedOrder(
+      i18n as unknown as I18nFix,
+      order,
+      buyerUser,
+      sellerUser
+    );
     await bot.telegram.sendMessage(
       String(process.env.ADMIN_CHANNEL),
       i18n.t('expired_order', {
@@ -1819,7 +1829,7 @@ const currencyNotSupportedMessage = async (
   }
 };
 
-const notAuthorized = async (ctx: MainContext, tgId: string) => {
+const notAuthorized = async (ctx: MainContext, tgId?: string) => {
   try {
     if (tgId) {
       await ctx.telegram.sendMessage(tgId, ctx.i18n.t('not_authorized'));

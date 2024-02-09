@@ -1,6 +1,5 @@
-import { ethers } from 'ethers';
+const { ethers } = require('ethers');
 
-const { parsePaymentRequest } = require('invoices');
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
@@ -266,6 +265,8 @@ const validateLightningAddress = async lightningAddress => {
 
 const validateInvoice = async (ctx, lnInvoice) => {
   try {
+    // EVMTODO
+    return true;
     const invoice = parsePaymentRequest({ request: lnInvoice });
     const latestDate = new Date(
       Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)
@@ -305,6 +306,8 @@ const validateInvoice = async (ctx, lnInvoice) => {
 
 const isValidInvoice = async (ctx, lnInvoice) => {
   try {
+    // EVMTODO
+    return true;
     const invoice = parsePaymentRequest({ request: lnInvoice });
     const latestDate = new Date(
       Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)

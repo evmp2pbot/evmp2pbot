@@ -1,0 +1,6 @@
+{
+  "events": {
+    "start": "clear || tsc",
+    "restart": "clear || tsc"
+  }
+}

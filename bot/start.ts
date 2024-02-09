@@ -56,7 +56,7 @@ const {
   validateInvoice,
   validateLightningAddress,
 } = require('./validations');
-const messages = require('./messages');
+import messages from './messages';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -372,10 +372,19 @@ const initialize = (
       await order.save();
       // we sent a private message to the admin
       await messages.successCancelOrderMessage(ctx, ctx.admin, order, ctx.i18n);
-      // we sent a private message to the seller
-      await messages.successCancelOrderByAdminMessage(ctx, bot, seller, order);
-      // we sent a private message to the buyer
-      await messages.successCancelOrderByAdminMessage(ctx, bot, buyer, order);
+      if (seller) {
+        // we sent a private message to the seller
+        await messages.successCancelOrderByAdminMessage(
+          ctx,
+          bot,
+          seller,
+          order
+        );
+      }
+      if (buyer) {
+        // we sent a private message to the buyer
+        await messages.successCancelOrderByAdminMessage(ctx, bot, buyer, order);
+      }
     } catch (error) {
       logger.error(error);
     }
@@ -471,15 +480,24 @@ const initialize = (
       await order.save();
       // we sent a private message to the admin
       await messages.successCompleteOrderMessage(ctx, order);
-      // we sent a private message to the seller
-      await messages.successCompleteOrderByAdminMessage(
-        ctx,
-        bot,
-        seller,
-        order
-      );
-      // we sent a private message to the buyer
-      await messages.successCompleteOrderByAdminMessage(ctx, bot, buyer, order);
+      if (seller) {
+        // we sent a private message to the seller
+        await messages.successCompleteOrderByAdminMessage(
+          ctx,
+          bot,
+          seller,
+          order
+        );
+      }
+      if (buyer) {
+        // we sent a private message to the buyer
+        await messages.successCompleteOrderByAdminMessage(
+          ctx,
+          bot,
+          buyer,
+          order
+        );
+      }
     } catch (error) {
       logger.error(error);
     }
@@ -497,7 +515,9 @@ const initialize = (
       const buyer = await User.findOne({ _id: order.buyer_id });
       const seller = await User.findOne({ _id: order.seller_id });
 
-      await messages.checkOrderMessage(ctx, order, buyer, seller);
+      if (buyer && seller) {
+        await messages.checkOrderMessage(ctx, order, buyer, seller);
+      }
     } catch (error) {
       logger.error(error);
     }
@@ -910,7 +930,7 @@ const initialize = (
   bot.command('info', userMiddleware, async (ctx: MainContext) => {
     try {
       const config = await Config.findOne({});
-      await messages.showInfoMessage(ctx, ctx.user, config);
+      await messages.showInfoMessage(ctx, ctx.user, config || undefined);
     } catch (error) {
       logger.error(error);
     }
