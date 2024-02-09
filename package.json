@@ -5,7 +5,7 @@
   "description": "P2P lightning network telegram bot",
   "main": "app.js",
   "scripts": {
-    "prestart": "tsc",
+    "build": "tsc --noEmit false",
     "start": "node ./app",
     "dev": "nodemon -e js,ts --exec 'ts-node --swc' ./app.js",
     "lint": "eslint .",
