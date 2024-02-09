@@ -2,3 +2,5 @@ node_modules
 .env
 admin.macaroon
 tls.cert
+*.d.ts
+*.bak

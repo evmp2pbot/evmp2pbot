@@ -14,4 +14,4 @@ const configSchema = new Schema<IConfig>({
 });
 
 
-module.exports = mongoose.model<IConfig>('Config', configSchema);
+export default mongoose.model<IConfig>('Config', configSchema);

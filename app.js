@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 require('dotenv').config();
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { start } = require('./bot');

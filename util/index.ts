@@ -1,56 +1,75 @@
-const axios = require('axios');
-const { I18n } = require('@grammyjs/i18n');
-const currencies = require('./fiat.json');
-const languages = require('./languages.json');
-const { Order, Community } = require('../models');
-const { logger } = require('../logger');
+import { I18n, I18nContext, LanguageCode, TemplateData } from '@grammyjs/i18n';
+import currencies from './fiat.json';
+import languages from './languages.json';
+import { Order, Community } from '../models';
+import { logger } from '../logger';
+import { UserDocument } from '../models/user';
+import { IFiat } from './fiatModel';
+import { Telegram } from 'telegraf';
+import { IOrder } from '../models/order';
+import { ICommunity } from '../models/community';
+
+export declare class I18nFix extends I18n {
+  createContext(
+    languageCode: LanguageCode,
+    templateData: Readonly<TemplateData>
+  ): I18nContext;
+  createContext(languageCode: LanguageCode): I18nContext;
+  t(languageCode: LanguageCode, templateData?: Readonly<TemplateData>): string;
+  t(
+    languageCode: LanguageCode,
+    resourceKey: string,
+    templateData?: Readonly<TemplateData>
+  ): string;
+}
 
 // ISO 4217, all ISO currency codes are 3 letters but users can trade shitcoins
 
-const isIso4217 = code => {
+const isIso4217 = (code: string) => {
   if (code.length < 3 || code.length > 5) {
     return false;
   }
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-  code = code.toLowerCase().split('');
-  return code.every(letter => {
-    if (alphabet.indexOf(letter) == -1) {
+  const codeParts = code.toLowerCase().split('');
+  return codeParts.every(letter => {
+    if (!alphabet.includes(letter)) {
       return false;
     }
     return true;
   });
 };
 
-exports.isIso4217 = isIso4217;
+export { isIso4217 };
 
-const getCurrency = code => {
+const getCurrency = (code: string): IFiat | false => {
   if (!isIso4217(code)) return false;
-  const currency = currencies[code];
+  const currency = currencies[code as keyof typeof currencies];
   if (!currency) return false;
 
   return currency;
 };
 
-exports.getCurrency = getCurrency;
+export { getCurrency };
 
-const plural = n => {
+const plural = (n: number) => {
   if (n === 1) {
     return '';
   }
   return 's';
 };
 
-exports.plural = plural;
+export { plural };
 
 // This function formats a number to locale strings.
 // If Iso code or locale code doesn´t exist, the function will return a number without format.
 
-exports.numberFormat = (code, number) => {
+export const numberFormat = (code: string, number: number) => {
   if (!isIso4217(code)) return false;
 
-  if (!currencies[code]) return number;
+  const fiat = currencies[code as keyof typeof currencies] as IFiat;
+  if (!fiat) return number;
 
-  const locale = currencies[code].locale;
+  const locale = fiat.locale;
   const numberToLocaleString = Intl.NumberFormat(locale);
 
   if (!locale || isNaN(number)) return number;
@@ -62,7 +81,12 @@ exports.numberFormat = (code, number) => {
 // In order to increase their trades_completed and volume_traded.
 // If we found those trades in the last 24 hours we decrease both variables to both users
 
-exports.handleReputationItems = async (buyer, seller, amount) => {
+// EVMTODO: Change amount to bigint, mongoose needs to be updated
+export const handleReputationItems = async (
+  buyer: UserDocument,
+  seller: UserDocument,
+  amount: number
+) => {
   try {
     const yesterday = new Date(Date.now() - 86400000).toISOString();
     const orders = await Order.find({
@@ -127,26 +151,19 @@ exports.handleReputationItems = async (buyer, seller, amount) => {
   }
 };
 
-exports.getBtcFiatPrice = async (fiatCode, fiatAmount) => {
+export const getBtcFiatPrice = async (fiatCode: string, fiatAmount: bigint) => {
   try {
     const currency = getCurrency(fiatCode);
-    if (!currency.price) return;
-    // Before hit the endpoint we make sure the code have only 3 chars
-    const code = currency.code.substring(0, 3);
-    const response = await axios.get(`${process.env.FIAT_RATE_EP}/${code}`);
-    if (response.data.error) {
-      return 0;
-    }
-    const sats = (fiatAmount / response.data.btc) * 100000000;
-
-    return parseInt(sats);
+    if (!currency || !currency.price) return;
+    return 0; // EVMTODO
   } catch (error) {
     logger.error(error);
   }
 };
 
-exports.getBtcExchangePrice = (fiatAmount, satsAmount) => {
+export const getBtcExchangePrice = (fiatAmount: number, satsAmount: number) => {
   try {
+    // EVMTODO
     const satsPerBtc = 1e8;
     const feeRate = (satsPerBtc * fiatAmount) / satsAmount;
 
@@ -156,7 +173,7 @@ exports.getBtcExchangePrice = (fiatAmount, satsAmount) => {
   }
 };
 
-const objectToArray = object => {
+const objectToArray = (object: Record<any, any>) => {
   const array = [];
 
   for (const i in object) array.push(object[i]);
@@ -164,16 +181,16 @@ const objectToArray = object => {
   return array;
 };
 
-exports.objectToArray = objectToArray;
+export { objectToArray };
 
-exports.getCurrenciesWithPrice = () => {
+export const getCurrenciesWithPrice = () => {
   const currenciesArr = objectToArray(currencies);
   const withPrice = currenciesArr.filter(currency => currency.price);
 
   return withPrice;
 };
 
-const getEmojiRate = rate => {
+const getEmojiRate = (rate: number) => {
   const star = '⭐';
   const roundedRate = Math.round(rate);
   const output = [];
@@ -182,12 +199,12 @@ const getEmojiRate = rate => {
   return output.join('');
 };
 
-exports.getEmojiRate = getEmojiRate;
+export { getEmojiRate };
 
 // Round number to exp decimal digits
 // Source: https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Math/round#redondeo_decimal
 
-const decimalRound = (value, exp) => {
+const decimalRound = (value: number, exp?: number) => {
   if (typeof exp === 'undefined' || +exp === 0) {
     return Math.round(value);
   }
@@ -198,32 +215,37 @@ const decimalRound = (value, exp) => {
     return NaN;
   }
   // Shift
-  value = value.toString().split('e');
-  value = Math.round(+(value[0] + 'e' + (value[1] ? +value[1] - exp : -exp)));
+  let valueParts = value.toString().split('e');
+  value = Math.round(
+    +(valueParts[0] + 'e' + (valueParts[1] ? +valueParts[1] - exp : -exp))
+  );
   // Shift back
-  value = value.toString().split('e');
-  return +(value[0] + 'e' + (value[1] ? +value[1] + exp : exp));
+  valueParts = value.toString().split('e');
+  return +(valueParts[0] + 'e' + (valueParts[1] ? +valueParts[1] + exp : exp));
 };
 
-exports.decimalRound = decimalRound;
+export { decimalRound };
 
-exports.extractId = text => {
+export const extractId = (text: string) => {
   const matches = text.match(/:([a-f0-9]{24}):$/);
+  if (!matches) {
+    throw new Error('No matched ID');
+  }
 
   return matches[1];
 };
 
 // Clean strings that are going to be rendered with markdown
 
-const sanitizeMD = text => {
+const sanitizeMD = (text: string) => {
   if (!text) return '';
 
   return text.toString().replace(/(?=[|<>(){}[\]\-_!#.`=+])/g, '\\');
 };
 
-exports.sanitizeMD = sanitizeMD;
+export { sanitizeMD };
 
-exports.secondsToTime = secs => {
+export const secondsToTime = (secs: number) => {
   const hours = Math.floor(secs / (60 * 60));
 
   const divisor = secs % (60 * 60);
@@ -235,9 +257,16 @@ exports.secondsToTime = secs => {
   };
 };
 
-exports.isGroupAdmin = async (groupId, user, telegram) => {
+export const isGroupAdmin = async (
+  groupId: string | number,
+  user: UserDocument,
+  telegram: Telegram
+) => {
   try {
-    const member = await telegram.getChatMember(groupId, user.tg_id);
+    const member = await telegram.getChatMember(
+      groupId,
+      parseInt(user.tg_id, 10)
+    );
     if (
       member &&
       (member.status === 'creator' || member.status === 'administrator')
@@ -261,12 +290,15 @@ exports.isGroupAdmin = async (groupId, user, telegram) => {
     logger.error(error);
     return {
       success: false,
-      message: error.toString(),
+      message: (error as any).toString(),
     };
   }
 };
 
-exports.deleteOrderFromChannel = async (order, telegram) => {
+export const deleteOrderFromChannel = async (
+  order: IOrder,
+  telegram: Telegram
+) => {
   try {
     let channel = process.env.CHANNEL;
     if (order.community_id) {
@@ -284,13 +316,16 @@ exports.deleteOrderFromChannel = async (order, telegram) => {
         }
       }
     }
-    await telegram.deleteMessage(channel, order.tg_channel_message1);
+    await telegram.deleteMessage(
+      String(channel),
+      Number(order.tg_channel_message1)
+    );
   } catch (error) {
     logger.error(error);
   }
 };
 
-exports.getOrderChannel = async order => {
+export const getOrderChannel = async (order: IOrder) => {
   let channel = process.env.CHANNEL;
   if (order.community_id) {
     const community = await Community.findOne({ _id: order.community_id });
@@ -300,7 +335,7 @@ exports.getOrderChannel = async order => {
     if (community.order_channels.length === 1) {
       channel = community.order_channels[0].name;
     } else {
-      community.order_channels.forEach(async c => {
+      community.order_channels.forEach(c => {
         if (c.type === order.type) {
           channel = c.name;
         }
@@ -311,10 +346,13 @@ exports.getOrderChannel = async order => {
   return channel;
 };
 
-exports.getDisputeChannel = async order => {
+export const getDisputeChannel = async (order: IOrder) => {
   let channel = process.env.DISPUTE_CHANNEL;
   if (order.community_id) {
     const community = await Community.findOne({ _id: order.community_id });
+    if (!community) {
+      throw new Error(`No community: ${order.community_id}`);
+    }
     channel = community.dispute_channel;
   }
 
@@ -326,24 +364,32 @@ exports.getDisputeChannel = async order => {
  * @param {*} user
  * @returns i18n context
  */
-exports.getUserI18nContext = async user => {
+export const getUserI18nContext = async (user: {
+  language?: string;
+  lang: string;
+}) => {
   const language = user.language || 'en';
   const i18n = new I18n({
-    locale: language,
+    ...{ locale: language },
     defaultLanguageOnMissing: true,
     directory: 'locales',
-  });
+  }) as I18nFix;
 
   return i18n.createContext(user.lang);
 };
 
-exports.getDetailedOrder = (i18n, order, buyer, seller) => {
+export const getDetailedOrder = (
+  i18n: I18nFix,
+  order: IOrder,
+  buyer: UserDocument,
+  seller: UserDocument
+) => {
   try {
-    const buyerUsername = buyer ? sanitizeMD(buyer.username) : '';
+    const buyerUsername = buyer ? sanitizeMD(buyer.username ?? '') : '';
     const buyerReputation = buyer
       ? sanitizeMD(buyer.total_rating.toFixed(2))
       : '';
-    const sellerUsername = seller ? sanitizeMD(seller.username) : '';
+    const sellerUsername = seller ? sanitizeMD(seller.username ?? '') : '';
     const sellerReputation = seller
       ? sanitizeMD(seller.total_rating.toFixed(2))
       : '';
@@ -355,7 +401,7 @@ exports.getDetailedOrder = (i18n, order, buyer, seller) => {
     createdAt = sanitizeMD(createdAt);
     takenAt = sanitizeMD(takenAt);
     const status = sanitizeMD(order.status);
-    const fee = order.fee ? parseInt(order.fee) : '';
+    const fee = order.fee ? parseInt(String(order.fee)) : '';
     const creator =
       order.creator_id === buyerId ? buyerUsername : sellerUsername;
     const message = i18n.t('order_detail', {
@@ -380,7 +426,7 @@ exports.getDetailedOrder = (i18n, order, buyer, seller) => {
 };
 
 // We need to know if this user is a dispute solver for this community
-exports.isDisputeSolver = (community, user) => {
+export const isDisputeSolver = (community: ICommunity, user: UserDocument) => {
   if (!community || !user) {
     return false;
   }
@@ -390,19 +436,19 @@ exports.isDisputeSolver = (community, user) => {
 
 // Return the fee the bot will charge to the seller
 // this fee is a combination from the global bot fee and the community fee
-exports.getFee = async (amount, communityId) => {
-  const maxFee = Math.round(amount * parseFloat(process.env.MAX_FEE));
+export const getFee = async (amount: number, communityId: string) => {
+  const maxFee = Math.round(amount * parseFloat(process.env.MAX_FEE || '0'));
   if (!communityId) return maxFee;
 
-  const botFee = maxFee * parseFloat(process.env.FEE_PERCENT);
+  const botFee = maxFee * parseFloat(process.env.FEE_PERCENT || '0');
   let communityFee = Math.round(maxFee - botFee);
   const community = await Community.findOne({ _id: communityId });
-  communityFee = communityFee * (community.fee / 100);
+  communityFee = communityFee * ((community?.fee ?? 0) / 100);
 
   return botFee + communityFee;
 };
 
-exports.itemsFromMessage = str => {
+export const itemsFromMessage = (str: string) => {
   return str
     .split(' ')
     .map(e => e.trim())
@@ -410,29 +456,32 @@ exports.itemsFromMessage = str => {
 };
 
 // Check if a number is int
-const isInt = n => parseInt(n) === n;
+const isInt = (n: any): n is number => parseInt(n) === n;
 
-exports.isInt = isInt;
+export { isInt };
 
 // Check if a number is float
-exports.isFloat = n => typeof n === 'number' && !isInt(n);
+export const isFloat = (n: any): n is number =>
+  typeof n === 'number' && !isInt(n);
 
 // Returns an emoji flag for a language
-exports.getLanguageFlag = code => {
-  return languages[code];
+export const getLanguageFlag = (code: string): IFiat | undefined => {
+  return languages[code as keyof typeof languages] as IFiat;
 };
 
-exports.delay = time => {
+export const delay = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
 };
 
 // Returns the hold invoice expiration time in seconds,
 // and the hold invoice safety window in seconds
-exports.holdInvoiceExpirationInSecs = () => {
+export const holdInvoiceExpirationInSecs = () => {
   const expirationTimeInSecs =
-    parseInt(process.env.HOLD_INVOICE_CLTV_DELTA) * 10 * 60;
+    parseInt(process.env.HOLD_INVOICE_CLTV_DELTA || '0') * 10 * 60;
   const safetyWindowInSecs =
-    parseInt(process.env.HOLD_INVOICE_CLTV_DELTA_SAFETY_WINDOW) * 10 * 60;
+    parseInt(process.env.HOLD_INVOICE_CLTV_DELTA_SAFETY_WINDOW || '0') *
+    10 *
+    60;
   return {
     expirationTimeInSecs,
     safetyWindowInSecs,
@@ -440,7 +489,7 @@ exports.holdInvoiceExpirationInSecs = () => {
 };
 
 // Returns the user age in days
-exports.getUserAge = user => {
+export const getUserAge = (user: UserDocument) => {
   const userCreationDate = new Date(user.created_at);
   const today = new Date();
   const ageInDays = Math.floor(
@@ -455,13 +504,15 @@ exports.getUserAge = user => {
  * @param {*} i18n context
  * @returns String with the remaining time to expiration in format '1 hours 30 minutes'
  */
-exports.getTimeToExpirationOrder = (order, i18n) => {
+export const getTimeToExpirationOrder = (order: IOrder, i18n: I18nFix) => {
   const initialDateObj = new Date(order.created_at);
-  const timeToExpire = parseInt(process.env.ORDER_PUBLISHED_EXPIRATION_WINDOW);
+  const timeToExpire = parseInt(
+    process.env.ORDER_PUBLISHED_EXPIRATION_WINDOW || '0'
+  );
   initialDateObj.setSeconds(initialDateObj.getSeconds() + timeToExpire);
 
   const currentDateObj = new Date();
-  const timeDifferenceMs = initialDateObj - currentDateObj;
+  const timeDifferenceMs = +initialDateObj - +currentDateObj;
   const totalSecondsRemaining = Math.floor(timeDifferenceMs / 1000);
   const textHour = i18n.t('hours');
   const textMin = i18n.t('minutes');
@@ -475,7 +526,7 @@ exports.getTimeToExpirationOrder = (order, i18n) => {
   return `${hours} ${textHour} ${minutes} ${textMin}`;
 };
 
-exports.getStars = (rate, totalReviews) => {
+export const getStars = (rate: number, totalReviews: number | string) => {
   const stars = getEmojiRate(rate);
   const roundedRating = decimalRound(rate, -1);
 

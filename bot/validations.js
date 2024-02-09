@@ -1,9 +1,10 @@
+import { ethers } from 'ethers';
+
 const { parsePaymentRequest } = require('invoices');
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
 const { Order, User, Community } = require('../models');
 const { isIso4217, isDisputeSolver } = require('../util');
-const { existLightningAddress } = require('../lnurl/lnurl-pay');
 const { logger } = require('../logger');
 
 // We look in database if the telegram user exists,
@@ -260,11 +261,7 @@ const validateBuyOrder = async ctx => {
   }
 };
 const validateLightningAddress = async lightningAddress => {
-  const pattern = /^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/g;
-
-  return (
-    pattern.test(lightningAddress) && existLightningAddress(lightningAddress)
-  );
+  return ethers.isAddress(lightningAddress);
 };
 
 const validateInvoice = async (ctx, lnInvoice) => {

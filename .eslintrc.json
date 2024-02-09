@@ -5,13 +5,36 @@
     "node": true,
     "jest": true
   },
-  "extends": ["standard", "eslint-config-prettier"],
+  "root": true,
+  "extends": ["standard-with-typescript", "eslint-config-prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "parserOptions": {
+    "project": ["tsconfig.json", "tsconfig.js.json"],
     "ecmaVersion": "latest"
   },
   "rules": {
     "no-underscore-dangle": "off",
     "camelcase": "off",
-    "eqeqeq": "off"
+    "eqeqeq": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "import/first": "off",
+    "@typescript-eslint/consistent-type-imports": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/prefer-optional-chain": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "@typescript-eslint/promise-function-async": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "no-useless-return": "off",
+    "prefer-const": "off",
+    "no-return-await": "off",
+    "@typescript-eslint/return-await": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/consistent-type-assertions": "off"
   }
 }
