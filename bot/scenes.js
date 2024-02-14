@@ -58,9 +58,6 @@ const addInvoiceWizard = new Scenes.WizardScene(
         return ctx.scene.leave();
       }
 
-      if (res.invoice.tokens && res.invoice.tokens !== order.amount)
-        return await messages.incorrectAmountInvoiceMessage(ctx);
-
       await waitPayment(ctx, bot, buyer, seller, order, lnInvoice);
 
       return ctx.scene.leave();
@@ -103,9 +100,6 @@ const addInvoicePHIWizard = new Scenes.WizardScene(
       if (!res.success) {
         return;
       }
-
-      if (!!res.invoice.tokens && res.invoice.tokens !== order.amount)
-        return await messages.incorrectAmountInvoiceMessage(ctx);
 
       const isScheduled = await PendingPayment.findOne({
         order_id: order._id,

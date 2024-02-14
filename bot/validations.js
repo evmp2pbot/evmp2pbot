@@ -1,4 +1,4 @@
-const { ethers } = require('ethers');
+const { ethers, isAddress } = require('ethers');
 
 const { ObjectId } = require('mongoose').Types;
 const messages = require('./messages');
@@ -27,6 +27,7 @@ const validateUser = async (ctx, start) => {
       });
       await user.save();
     } else if (!user) {
+      await messages.runStartFirstMessage(ctx);
       return false;
     } else if (user.banned) {
       await messages.bannedUserErrorMessage(ctx, user);
@@ -307,7 +308,7 @@ const validateInvoice = async (ctx, lnInvoice) => {
 const isValidInvoice = async (ctx, lnInvoice) => {
   try {
     // EVMTODO
-    return true;
+    return { success: isAddress(lnInvoice) };
     const invoice = parsePaymentRequest({ request: lnInvoice });
     const latestDate = new Date(
       Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)

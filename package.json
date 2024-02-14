@@ -15,6 +15,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@google-cloud/secret-manager": "^5.0.1",
     "@grammyjs/i18n": "^0.5.1",
     "@grammyjs/ratelimiter": "^1.1.5",
     "axios": "^1.6.0",

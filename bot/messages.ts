@@ -377,7 +377,7 @@ const beginTakeBuyMessage = async (
       seller.tg_id,
       ctx.i18n.t('begin_take_buy', { expirationTime })
     );
-    await bot.telegram.sendMessage(seller.tg_id, order._id, {
+    await bot.telegram.sendMessage(seller.tg_id, order._id.toString(), {
       reply_markup: {
         inline_keyboard: [
           [
@@ -466,7 +466,7 @@ const onGoingTakeBuyMessage = async (
         days: ageInDays,
       })
     );
-    await bot.telegram.sendMessage(buyer.tg_id, order._id, {
+    await bot.telegram.sendMessage(buyer.tg_id, order._id.toString(), {
       reply_markup: {
         inline_keyboard: [
           [{ text: i18nBuyer.t('continue'), callback_data: 'addInvoiceBtn' }],
@@ -498,7 +498,7 @@ const beginTakeSellMessage = async (
       ctx.i18n.t('you_took_someone_order', { expirationTime }),
       { parse_mode: 'MarkdownV2' }
     );
-    await bot.telegram.sendMessage(buyer.tg_id, order._id, {
+    await bot.telegram.sendMessage(buyer.tg_id, order._id.toString(), {
       reply_markup: {
         inline_keyboard: [
           [
@@ -854,6 +854,19 @@ const bannedUserErrorMessage = async (ctx: MainContext, user: UserDocument) => {
       user.tg_id,
       ctx.i18n.t('you_have_been_banned')
     );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const runStartFirstMessage = async (ctx: MainContext) => {
+  try {
+    const tgId = ctx.from?.id;
+    if (tgId) {
+      await ctx.telegram.sendMessage(tgId, ctx.i18n.t('run_start_first'));
+    } else {
+      await ctx.reply(ctx.i18n.t('run_start_first'));
+    }
   } catch (error) {
     logger.error(error);
   }
@@ -1890,7 +1903,7 @@ const showConfirmationButtons = async (
   }
 };
 
-export default {
+export {
   startMessage,
   initBotErrorMessage,
   invoicePaymentRequestMessage,

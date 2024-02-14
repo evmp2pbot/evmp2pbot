@@ -3,8 +3,8 @@ start: |
 
   ${disclaimer}
   ---———— DISCLAIMER ————---
-  
-  This bot will help you complete P2P Bitcoin transactions through the Lightning Network (LN).
+
+  This bot will help you complete P2P token transactions.
 
   Once you start up the bot, you can use the following commands:
 
@@ -16,27 +16,23 @@ start: |
 
   4. If you are selling, the bot will publish the order in the ${channel} channel expecting another user will take it. You can cancel this sell order anytime BEFORE another user takes it with the /cancel command.
 
-  5. Once somebody takes your order, the bot will ask you to pay the LN invoice. Such payment will be held in an escrow that is frozen in your wallet, the order will expire in a maximum lapse of ${orderExpiration} hours starting when the order was taken.
+  5. Once somebody takes your order, the bot will ask you to send tokens to an escrow address. The order will expire in a maximum lapse of ${orderExpiration} hours starting when the order was taken.
 
   The bot will reveal who the buyer is so you can send instructions for the FIAT payment to be made. Once you receive the FIAT payment, you must send the funds to the buyer using the /release command.
 
   6. If you want to buy, publish your order using the /buy command and wait until a seller takes it. You can cancel the order at any time by using the /cancel command.
 
-  7. Once somebody takes your buy order, you must create a LN invoice and send it to the bot. After that, you need to contact your seller to get your FIAT payment instructions. Once you have paid the seller, you should use the /release command. The bot will send you the sats to your LN invoice.
+  7. Once somebody takes your buy order, you must send your wallet address to the bot. After that, you need to contact your seller to get your FIAT payment instructions. Once you have paid the seller, you should use the /release command. The bot will send you the tokens to your wallet address.
 
-  8. If you are taking a selling order, i.e. you buy sats, you must create a LN invoice to get your sats and ask the seller to give you the FIAT payment instructions. Once the seller receives the fiat payment he shall use the /release command to have the sats sent to your wallet.
+  8. If you are taking a selling order, i.e. you buy tokens, you must send your wallet address to the bot and ask the seller to give you the FIAT payment instructions. Once the seller receives the fiat payment he shall use the /release command to have the tokens sent to your wallet.
 
-  9. If you are taking a buy order, i.e. you sell sats, you must pay the LN invoice. These sats will be held until the buyer makes the fiat payment. You must contact the buyer and give him the info needed to proceed with the fiat payment. Once you receive the fiat payment, you must release the fund held by the bot; you must use the /release command, and the sats will be automatically sent to the buyer's wallet.
+  9. If you are taking a buy order, i.e. you sell tokens, you must send tokens to an escrow address. These tokens will be held until the buyer makes the fiat payment. You must contact the buyer and give him the info needed to proceed with the fiat payment. Once you receive the fiat payment, you must release the fund held by the bot; you must use the /release command, and the tokens will be automatically sent to the buyer's wallet.
 
-  You can find more information on how to use this bot here 👇
-
-  https://lnp2pbot.com/learn
-  
   Make a quick and safe transaction!
 init_bot_error: to use this bot, you need to first initialize the boot with the command /start
 non_handle_error: 👤 To use this bot, you need to activate your Telegram Username. To activate it open the hamburger menu on the top left and select settings -> edit profile -> username
 invoice_payment_request: |
-  Somebody wants to buy you ${order.amount} sats for ${currency} ${order.fiat_amount}.
+  Somebody wants to buy you ${order.amount} tokens for ${currency} ${order.fiat_amount}.
 
   Buyer Reputation: ${rate}, days using the bot: ${days}
 
@@ -50,19 +46,19 @@ pending_sell: |
 cancel_order_cmd: |
   /cancel ${orderId}
 pending_buy: |
-  📝 You offer to buy sats is active in the ${channel} channel.
+  📝 You offer to buy tokens is active in the ${channel} channel.
 
   You need to wait until another user picks up the order, this order will expire in ${orderExpirationWindow} hours.
 
   You can cancel this order before another user picks it up by executing the command 👇
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric
-sats_amount: sats amount
+sats_amount: tokens amount
 fiat_amount: fiat amount
 sell_correct_format: |
   /sell \<_sats amount_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
-  In order to create a sell order of 1000 satoshis for 2 US dollars \(USD\) and indicate that the fiat payment is through transfer or ATM deposit, you must avoid \<\> and \[\]\.
+  In order to create a sell order of 1000 tokens for 2 US dollars \(USD\) and indicate that the fiat payment is through transfer or ATM deposit, you must avoid \<\> and \[\]\.
 
   `/sell 1000 2 USD "transfer or ATM deposit"`
 
@@ -76,22 +72,22 @@ sell_correct_format: |
 buy_correct_format: |
   /buy \<_sats amount_\> \<_fiat amount_\> \<_fiat code_\> \<_payment method_\> \[_premium/discount_\]
 
-  In order to create an order for 1000 satoshis for 2 \(USD\) and indicate that fiat payment is through transfer, you must to omit both \<\> and \[\]\.
+  In order to create an order for 1000 tokens for 2 \(USD\) and indicate that fiat payment is through transfer, you must to omit both \<\> and \[\]\.
 
   `/buy 1000 2 USD "online transfer"`
 
-  If you do not want to establish a fixed amount of satoshis and you want to buy with a price under market value, you can place a buy order establishing a certain discount, such rate is the percentage that will be substracted of market price when your order is published\. You need to specify 0 at the \<_sats amount_\> field, the bot will calculate the price\. If you want to buy with a 2% discount on the price market, you should write \-2 as the last parameter
+  If you do not want to establish a fixed amount of tokens and you want to buy with a price under market value, you can place a buy order establishing a certain discount, such rate is the percentage that will be substracted of market price when your order is published\. You need to specify 0 at the \<_sats amount_\> field, the bot will calculate the price\. If you want to buy with a 2% discount on the price market, you should write \-2 as the last parameter
 
   `/buy 0 2 USD "payment method" \-2`
 
   If you want to create a purchase order by range instead of indicating a fixed Fiat amount, you can set the minimum and maximum to transact separated by a hyphen *\-*
 
   `/buy 0 100\-500 USD "payment method" \-2`
-min_invoice_amount: invoice needs to be equal or higher than ${minPaymentAmount} satoshis
+min_invoice_amount: invoice needs to be equal or higher than ${minPaymentAmount} tokens
 min_expiration_time: Time expiration for the invoice should be of at least ${expirationTime} minutes
 invoice_expired: The invoice has expired
 invoice_expired_long: |
-  The invoice has expired. You can use the following command to send me a new invoice to receive the satoshis 👇
+  The invoice has expired. You can use the following command to send me a new invoice to receive the tokens 👇
 setinvoice_cmd_order: |
   /setinvoice ${orderId} \\<Lightning Invoice\\>
 invoice_require_destination: Invoice needs a receiver address
@@ -104,17 +100,17 @@ begin_take_buy: |
   🤖 Press Continue to take the offer, if you press Cancel, you will be released from the order and it will be republished. You have ${expirationTime} minutes before this order expires. 👇
 continue: Continue
 cancel: Cancel
-pay_invoice: Please pay this invoice of ${amount} sats for ${currency} ${fiatAmount} to start the operation.
+pay_invoice: Please pay this invoice of ${amount} tokens for ${currency} ${fiatAmount} to start the operation.
 payment_received: |
   🤑 Payment received!
 
-  Now I need the buyer to send an invoice so I can send satoshis to his/her wallet. I will put you both in touch as soon as the buyer sends the invoice
+  Now I need the buyer to send an invoice so I can send tokens to his/her wallet. I will put you both in touch as soon as the buyer sends the invoice
 
   Wait a bit. The collateral will be returned to you if the buyer does not cooperate.
 someone_took_your_order: |
-  🤖 Someone took your order and already sent me the sats, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds.
+  🤖 Someone took your order and already sent me the tokens, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds.
 
-  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the sats will return to the seller, putting the buyer at risk. I cannot force the seller to send the sats again.
+  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the tokens will return to the seller, putting the buyer at risk. I cannot force the seller to send the tokens again.
 
   Seller Reputation: ${rate}, days using the bot: ${days}
 
@@ -122,7 +118,7 @@ someone_took_your_order: |
 you_took_someone_order: |
   🤖 You took this selling order, please use a fiat payment processor that allows you to send the money immediately and in which there is no risk of freezing funds\\.
 
-  *If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the sats will return to the seller, putting the buyer at risk and I cannot force the seller to send the sats again\\.*
+  *If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the tokens will return to the seller, putting the buyer at risk and I cannot force the seller to send the tokens again\\.*
 
   If you agree with the above, press the button to continue 👇
 get_in_touch_with_seller: |
@@ -135,24 +131,24 @@ fiatsent_order_cmd: /fiatsent
 get_in_touch_with_buyer: |
   🤖 Order ID: #${orderId}
 
-  Get in touch with @${buyerUsername} to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release those sats until you verify that the buyer paid you the fiat.
+  Get in touch with @${buyerUsername} to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release those tokens until you verify that the buyer paid you the fiat.
 
-  Once you confirm the reception of the money, you must unlock the sats.
+  Once you confirm the reception of the money, you must unlock the tokens.
 buyer_took_your_order: |
   🤖 Order ID: #${orderId}
 
-  @${buyerUsername} has taken your order and wants to buy your sats. Get in touch and tell him how to send you ${currency} ${fiatAmount} through ${paymentMethod}.
+  @${buyerUsername} has taken your order and wants to buy your tokens. Get in touch and tell him how to send you ${currency} ${fiatAmount} through ${paymentMethod}.
 
-  Once you verify you have received the full amount, you have to release the sats
-waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends your sats for the order ID #${orderId}, as soon as payment is made I will put you both in touch'
-sell_success: Your sats sale has been completed after confirming the payment from @${buyerUsername} ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} already released the sats, expect your invoice to be paid any time, remember your wallet needs to be online to receive through Lightning Network.
+  Once you verify you have received the full amount, you have to release the tokens
+waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends your tokens for the order ID #${orderId}, as soon as payment is made I will put you both in touch'
+sell_success: Your tokens sale has been completed after confirming the payment from @${buyerUsername} ⚡️🍊⚡️
+funds_released: 🕐 @${sellerUsername} already released the tokens, expect your invoice to be paid any time, remember your wallet needs to be online to receive through Lightning Network.
 rate_counterpart: 'Please qualify your counterparty:'
 cant_process_order: This order cannot be processed, please check the ID is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
 no_id_related: You do not have any order associated with this ID.
-sell_sats: Sell satoshis
-buy_sats: Buy satoshis
+sell_sats: Sell tokens
+buy_sats: Buy tokens
 order_detail: |
   ID: `${order._id}`
 
@@ -168,11 +164,11 @@ order_detail: |
 
   Seller reputation: ${sellerReputation}
 
-  Order Amount \\(sats\\): ${order.amount}
+  Order Amount \\(tokens\\): ${order.amount}
 
-  Bot Fee \\(sats\\): ${fee}
+  Bot Fee \\(tokens\\): ${fee}
 
-  Routing Fee \\(sats\\): ${order.routing_fee}
+  Routing Fee \\(tokens\\): ${order.routing_fee}
 
   Fiat Amount \\(fiat\\) ${order.fiat_code}: ${order.fiat_amount}
 
@@ -214,14 +210,14 @@ help: |
   /info - Shows additional info about the bot
   /showusername - Toggles off the username display in each new order created. Default value is set to false
   /showvolume - Shows trade volume when each order is created, default value is false
-  /setinvoice <_order id_> <_lightning invoice_> - This command allows the buyer to update the lightning invoice where to receive the sats 
+  /setinvoice <_order id_> <_lightning invoice_> - This command allows the buyer to update the lightning invoice where to receive the tokens 
   /setaddress <_lightning address / off_> - Allows the buyer to establish a static payment address (lightning address), _off_ to deactivate 
   /setlang - Allows the user to change the language
   /settings - Displays the user's current settings
   /listorders - Use this command to list all your pending transactions 
-  /listcurrencies - Lists all the currencies we can use to without indicatin the amount in sats. 
+  /listcurrencies - Lists all the currencies we can use to without indicatin the amount in tokens. 
   /fiatsent <_order id_> - Buyer informs that he has already sent FIAT money to seller
-  /release <_order id_> - Seller releases satoshis 
+  /release <_order id_> - Seller releases tokens 
   /dispute <_order id_> - Opens a dispute between participant parties
   /disclaimer - Displays disclaimer
   /cancel <_order id_> - Cancel an order that has not been taken yet
@@ -238,8 +234,8 @@ help: |
   /mycomm <_@community_> - Enter Community Admin Wizard
   /findcomms <_fiat code_> - Finds communities that operate with the indicated currency
   /setcomm <_@groupOfACommunity / off_> - Set a default community or remove it with 'off'
-  /settleorder <_order id_> - Accept the seller's payment and automatically send the sats to the buyer, there must be a community by default
-  /cancelorder <_id orden_> - Cancels the order which returns the sats to the seller, there must be a community by default
+  /settleorder <_order id_> - Accept the seller's payment and automatically send the tokens to the buyer, there must be a community by default
+  /cancelorder <_id orden_> - Cancels the order which returns the tokens to the seller, there must be a community by default
   /deldispute <_username_> <_id order_> - Deletes a dispute from the user in the community, there must be a community by default
   /ban <_username_> - Ban a user from a community, there should be a default community
   /unban <_username_> - Unban a user from a community, there should be a default community
@@ -248,21 +244,22 @@ help: |
   /help - Help messages
 must_be_gt_or_eq: ${fieldName} Must be greater or equal to ${qty}
 you_have_been_banned: You have been banned!
-I_told_seller_you_sent_fiat: 🤖 I told @${sellerUsername} that you have sent the fiat money. Once the seller confirms the money was received, the sats should be sent to you.
+run_start_first: I haven't seen you before, please run /start first.
+I_told_seller_you_sent_fiat: 🤖 I told @${sellerUsername} that you have sent the fiat money. Once the seller confirms the money was received, the tokens should be sent to you.
 buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that he already sent you the fiat money. Once you confirm the reception, please release funds. You will not be able to create another order until you release funds.
 release_order_cmd: /release
-you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven't released the sats yet. You will not be able to create new orders until you release such funds.
+you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs that the fiat money was sent to you but you haven't released the tokens yet. You will not be able to create new orders until you release such funds.
 user_banned: Banned user!
 user_unbanned: Unbanned user!
 user_not_found: User was not found in the database!
 parse_invoice_error: Error parsing invoice
 invalid_id: Invalid ID
 cant_take_own_order: You cannot take your own order.
-send_me_lninvoice: Please send me a lightning invoice for ${amount} sats, although to make things easier for you, I also accept invoices without a specified amount. I will make the payment of ${amount} sats.
+send_me_lninvoice: Please send me a lightning invoice for ${amount} tokens, although to make things easier for you, I also accept invoices without a specified amount. I will make the payment of ${amount} tokens.
 you_have_no_orders: You don't have active orders
 not_rate_for_currency: |
   ${fiatRateProvider} There is no exchange rate for this currency,
-  if you want to use this currency, you must indicate how many satoshis you want
+  if you want to use this currency, you must indicate how many tokens you want
   If you woud like this currency in the listing, go to this link to place a request. 👇
 
   🌐 https://yadio.io/api.html
@@ -283,11 +280,11 @@ ok_cooperativecancel: '👍 Counterparty agreed and the order ID: ${orderId} has
 refund_cooperativecancel: 💰 You have received a refund of your lightning payment, there is no further action to make
 init_cooperativecancel: '🕒 You have started the cancellation of the order ID: ${orderId}, your counterparty must agree on the cancellation too.'
 counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel order ID: ${orderId}. If you agree on such cancellation, please execute the following command 👇'
-invoice_payment_failed: ⛔ I tried to send you the sats but the payment of your invoice failed, I will try ${attempts} more times in ${pendingPaymentWindow} minutes window, please check your node/wallet is online
+invoice_payment_failed: ⛔ I tried to send you the tokens but the payment of your invoice failed, I will try ${attempts} more times in ${pendingPaymentWindow} minutes window, please check your node/wallet is online
 cant_take_more_orders: ⛔ Sorry! You can't take another order while you have others waiting for you
-seller_released: 💸 Seller has already released the satoshis, you must wait for your invoice to be paid.
+seller_released: 💸 Seller has already released the tokens, you must wait for your invoice to be paid.
 your_purchase_is_completed: |
-  🪙 Your satoshis purchase has been completed successfully, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
+  🪙 Your tokens purchase has been completed successfully, @${sellerUsername} has confirmed your fiat payment and I have paid your invoice, enjoy sound money!
 
   ⚡️🍊⚡️
 problem_getting_price: There is a problem accessing this coin's price, please try later. If the problem persists, please get in touch with an administrator.
@@ -296,7 +293,7 @@ lightning_address_disabled: Lightning address disabled
 invalid_range_with_amount: |
   Ranges are only available for floating rates
 
-  Use ranges or specify the number of sats, but do not write both of them
+  Use ranges or specify the number of tokens, but do not write both of them
 too_many_pending_orders: You have reached the maximum amount of orders that can be published simultaneously
 name: Name
 group: Group
@@ -307,11 +304,11 @@ created: Created
 yes: Yes
 no: No
 wizard_add_invoice_init: |
-  🤖 I need you to send me an invoice for ${satsAmount} satoshis that is worth ${currency} ${fiatAmount} so I can send you the money.
+  🤖 I need you to send me an wallet address to receive ${satsAmount} tokens that is worth ${currency} ${fiatAmount} so I can send you the money.
 
-  If you do not send the invoice within ${expirationTime} minutes the order will be cancelled
+  If you do not send the address within ${expirationTime} minutes the order will be cancelled
 wizard_add_invoice_exit: |
-  You have exited wizard mode, you can now write down the commands and add an invoice to the order with the command /setinvoice indicating Order ID and Invoice. You may send me an invoice for ${amount} satoshis, but I also accept invoices with no amount specified:
+  You have exited wizard mode, you can now write down the commands and add an invoice to the order with the command /setinvoice indicating Order ID and Invoice. You may send me an invoice for ${amount} tokens, but I also accept invoices with no amount specified:
 
   `/setinvoice ${orderId} `\\<lightning invoice with or without amount\\>
 wizard_community_enter_name: Pick a name for your community
@@ -360,7 +357,7 @@ expired_order: |
 expired_order_to_buyer: |
   🚨🚨🚨 This order is about to expire and must be completed or cancelled immediately, if you haven't sent the fiat money yet, you can still cancel with the /cancel command.
 
-  If you sent the fiat money but the seller refuses to release the sats, you can open a dispute with the /dispute command. The hold invoice that the seller paid has an expiration time and you must resolve this order before it expires or you risk losing your money.
+  If you sent the fiat money but the seller refuses to release the tokens, you can open a dispute with the /dispute command. The hold invoice that the seller paid has an expiration time and you must resolve this order before it expires or you risk losing your money.
 
   If you need help, you can write to the group ${helpGroup}
 expired_order_to_seller: |
@@ -369,18 +366,18 @@ expired_order_to_seller: |
   If you received the fiat money please release the funds with the /release command, otherwise you are at risk of the buyer opening a dispute which will affect your reputation.
 
   If you need help, you can write to the group ${helpGroup}
-didnt_add_invoice: '🤨 You have not sent the invoice to receive sats for the order ID: ${orderId}'
-buyer_havent_add_invoice: '😔 Buyer has not sent me the invoice to receive the sats for your order ID: ${orderId}, your sats were sent back to you'
-buyer_havent_add_invoice_to_admin_channel: 'Buyer @${username} took the order ID: ${orderId} but has not sent the invoice where to receive sats, time has expired, the order has being republished.'
-havent_paid_invoice: '🤨 You have not paid the invoice to sell sats for the order ID: ${orderId}'
+didnt_add_invoice: '🤨 You have not sent the invoice to receive tokens for the order ID: ${orderId}'
+buyer_havent_add_invoice: '😔 Buyer has not sent me the invoice to receive the tokens for your order ID: ${orderId}, your tokens were sent back to you'
+buyer_havent_add_invoice_to_admin_channel: 'Buyer @${username} took the order ID: ${orderId} but has not sent the invoice where to receive tokens, time has expired, the order has being republished.'
+havent_paid_invoice: '🤨 You have not paid the invoice to sell tokens for the order ID: ${orderId}'
 seller_havent_paid_invoice: '😔 Seller has not paid the invoice for your purchase ID: ${orderId}, the operation was cancelled.'
 seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not paid the invoice of order ID: ${orderId} time lapse ended and the order has been published again.'
 pending_payment_success_to_admin: |
-  User @${username} had a pending invoice, the payment for buying order ID: ${orderId} for ${amount} satoshis, was finally executed after ${attempts} attempts.
+  User @${username} had a pending invoice, the payment for buying order ID: ${orderId} for ${amount} tokens, was finally executed after ${attempts} attempts.
 
   Proof of payment: ${paymentSecret}
 pending_payment_success: |
-  I have paid the lightning invoice for ${amount} satoshis, order ID: ${id}!
+  I have paid the lightning invoice for ${amount} tokens, order ID: ${id}!
 
   Proof of payment: ${paymentSecret}
 pending_payment_failed: |
@@ -394,8 +391,8 @@ buying: Buying
 receive_payment: Receive payment
 pay: Pay
 is: is
-trading_volume: 'Trading volume: ${volume} sats'
-satoshis: satoshis
+trading_volume: 'Trading volume: ${volume} tokens'
+tokens: tokens
 by: by
 rate: Rate
 has_successful_trades: Has ${trades} successful trades
@@ -403,7 +400,7 @@ user_age: "Has been using the bot for ${pluralize(days, 'day', 'days')}"
 price: Price
 for: For
 generic_error: An error occurred
-sats: sats
+sats: tokens
 no_capital_letters: 🤖 You are trying to execute a command with the first letter capitalized. Please write the entire command in lowercase.
 unknown_command: 😕 I do not understand. Please use /help to see the list of available commands
 invoice_invalid_error: |
@@ -413,7 +410,7 @@ invoice_invalid_error: |
 invoice_expiry_too_short_error: Invoice expiry is too short
 invoice_has_expired_error: Invoice has expired
 invoice_has_wrong_destination_error: Invoice has a wrong destination
-invoice_must_be_larger_error: Invoice must be for at least ${minInvoice} sats
+invoice_must_be_larger_error: Invoice must be for at least ${minInvoice} tokens
 hours: hours
 minutes: minutes
 community_updated: Community successfully updated
@@ -437,7 +434,7 @@ new_dispute: ⚠️⚠️⚠️ A user has started a dispute, press the button t
 take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation, you need to have a default community
-enter_sats_amount: Enter sats amount, enter only numbers.
+enter_sats_amount: Enter tokens amount, enter only numbers.
 market_price: Market price
 enter_currency: 'Enter a currency by your code, eg: USD'
 choose_currency: Choose a currency
@@ -481,7 +478,7 @@ must_enter_text: You must enter only text
 current_earnings: |
   Orders completed so far in the community: ${ordersToRedeem}
 
-  Community Earnings: ${earnings} sats
+  Community Earnings: ${earnings} tokens
 you_dont_have_communities: You have no communities created
 users_added: 'You have added: ${users}'
 users_not_added: 'Could not add to: ${users}; please make sure these users have started the bot'
@@ -502,7 +499,7 @@ maintenance: 🚨 Bot in maintenance, please try again later 🚨
 community_admin: |
   <strong>Community Admin Mode</strong>
   > ${community.name} (${community.group})
-  
+
   Public:
     ${community.public ? 'Yes' : 'No'}
   Fee:
@@ -538,7 +535,6 @@ npub_not_valid: |
   Example:
   /setnpub npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6
 # END modules/nostr
-
 # START modules/orders
 order_not_found: Order not found.
 # END modules/orders
@@ -571,7 +567,7 @@ bot_info: |
   Max routing fee: ${routing_fee}
 
   Node URI: `${node_uri}`
-  
+
   Node status: ${status}
 
   User info:

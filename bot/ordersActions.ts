@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
 import { Order, Community } from '../models';
-import messages from './messages';
+import * as messages from './messages';
 import {
   getCurrency,
   numberFormat,

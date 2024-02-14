@@ -4,7 +4,6 @@ const {
 } = require('./validations');
 const {
   createHoldInvoice,
-  subscribeInvoice,
   cancelHoldInvoice,
   settleHoldInvoice,
 } = require('../ln');
@@ -20,6 +19,7 @@ const ordersActions = require('./ordersActions');
 
 const { resolvLightningAddress } = require('../lnurl/lnurl-pay');
 const { logger } = require('../logger');
+const { initOrderHoldInvoice } = require('../ln/subscribe_invoice');
 
 const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
   try {
@@ -64,8 +64,9 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
       order.secret = secret;
       order.taken_at = Date.now();
       order.status = 'WAITING_PAYMENT';
+      await order.save();
       // We monitor the invoice to know when the seller makes the payment
-      await subscribeInvoice(bot, hash);
+      initOrderHoldInvoice(bot, hash);
 
       // We pass the buyer for rate and age calculations
       const buyer = await User.findById(order.buyer_id);
@@ -389,7 +390,7 @@ const showHoldInvoice = async (ctx, bot, order) => {
     await order.save();
 
     // We monitor the invoice to know when the seller makes the payment
-    await subscribeInvoice(bot, hash);
+    initOrderHoldInvoice(bot, hash);
     await messages.showHoldInvoiceMessage(
       ctx,
       request,
@@ -708,7 +709,7 @@ const release = async (ctx, orderId, user) => {
       await dispute.save();
     }
 
-    await settleHoldInvoice({ secret: order.secret });
+    await settleHoldInvoice(ctx, { secret: order.secret });
   } catch (error) {
     logger.error(error);
   }

@@ -56,7 +56,7 @@ const {
   validateInvoice,
   validateLightningAddress,
 } = require('./validations');
-import messages from './messages';
+import * as messages from './messages';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -309,7 +309,7 @@ const initialize = (
       order.action_by = ctx.admin._id;
       await order.save();
 
-      if (order.secret) await settleHoldInvoice({ secret: order.secret });
+      if (order.secret) await settleHoldInvoice(ctx, { secret: order.secret });
 
       await ctx.reply(ctx.i18n.t('order_frozen'));
     } catch (error) {
@@ -467,7 +467,7 @@ const initialize = (
         }
       }
 
-      if (order.secret) await settleHoldInvoice({ secret: order.secret });
+      if (order.secret) await settleHoldInvoice(ctx, { secret: order.secret });
 
       if (dispute) {
         dispute.status = 'SETTLED';
@@ -754,9 +754,6 @@ const initialize = (
       }
       if (order.status === 'SUCCESS')
         return await messages.successCompleteOrderMessage(ctx, order);
-
-      if (invoice.tokens && invoice.tokens !== order.amount)
-        return await messages.incorrectAmountInvoiceMessage(ctx);
 
       order.buyer_invoice = lnInvoice;
       // When a seller release funds but the buyer didn't get the invoice paid

@@ -860,9 +860,6 @@ exports.addEarningsInvoiceWizard = new Scenes.WizardScene(
       const res = await isValidInvoice(ctx, lnInvoice);
       if (!res.success) return;
 
-      if (!!res.invoice.tokens && res.invoice.tokens !== community.earnings)
-        return await ctx.reply(ctx.i18n.t('invoice_with_incorrect_amount'));
-
       const isScheduled = await PendingPayment.findOne({
         community_id: community._id,
         attempts: { $lt: process.env.PAYMENT_ATTEMPTS },
@@ -882,7 +879,7 @@ exports.addEarningsInvoiceWizard = new Scenes.WizardScene(
         user_id: user.id,
         community_id: community._id,
         description: `Retiro por admin @${user.username}`,
-        hash: res.invoice.hash,
+        hash: lnInvoice,
       });
       await pp.save();
       await ctx.reply(ctx.i18n.t('invoice_updated_and_will_be_paid'));

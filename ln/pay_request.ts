@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 import { User, PendingPayment } from '../models';
 import { handleReputationItems, getUserI18nContext } from '../util';
-import messages from '../bot/messages';
+import * as messages from '../bot/messages';
 import { logger } from '../logger';
 import { IOrder } from '../models/order';
 import { MainContext } from '../bot/start';
