@@ -555,6 +555,27 @@ const onGoingTakeSellMessage = async (
   }
 };
 
+export const receivedLessTokenThanExpectedMessage = async (
+  bot: MainContext,
+  diff: string,
+  sellerUser: UserDocument,
+  order: IOrder,
+  i18nSeller: I18nContext
+) => {
+  try {
+    await bot.telegram.sendMessage(
+      sellerUser.tg_id,
+      i18nSeller.t('received_less_than_expected', {
+        amount: order.amount,
+        orderId: order._id,
+        diff,
+      })
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const takeSellWaitingSellerToPayMessage = async (
   ctx: MainContext,
   bot: Telegraf<MainContext>,
@@ -1734,11 +1755,11 @@ const toAdminChannelSellerDidntPayInvoiceMessage = async (
 };
 
 const toAdminChannelPendingPaymentSuccessMessage = async (
-  bot: Telegraf<MainContext>,
+  bot: MainContext,
   user: UserDocument,
   order: IOrder,
   pending: IPendingPayment,
-  payment: unknown,
+  payment: { secret: string },
   i18n: I18nContext
 ) => {
   try {
@@ -1749,7 +1770,7 @@ const toAdminChannelPendingPaymentSuccessMessage = async (
         username: user.username,
         attempts: pending.attempts,
         amount: numberFormat(order.fiat_code, order.amount),
-        paymentSecret: 'EVMTODO', // payment.secret,
+        paymentSecret: payment.secret,
       })
     );
   } catch (error) {
@@ -1758,10 +1779,10 @@ const toAdminChannelPendingPaymentSuccessMessage = async (
 };
 
 const toBuyerPendingPaymentSuccessMessage = async (
-  bot: Telegraf<MainContext>,
+  bot: MainContext,
   user: UserDocument,
   order: IOrder,
-  payment: unknown,
+  payment: { secret: string },
   i18n: I18nContext
 ) => {
   try {
@@ -1770,7 +1791,7 @@ const toBuyerPendingPaymentSuccessMessage = async (
       i18n.t('pending_payment_success', {
         id: order._id,
         amount: numberFormat(order.fiat_code, order.amount),
-        paymentSecret: 'EVMTODO', // payment.secret,
+        paymentSecret: payment.secret,
       })
     );
   } catch (error) {
@@ -1779,7 +1800,7 @@ const toBuyerPendingPaymentSuccessMessage = async (
 };
 
 const toBuyerPendingPaymentFailedMessage = async (
-  bot: Telegraf<MainContext>,
+  bot: MainContext,
   user: UserDocument,
   order: IOrder,
   i18n: I18nContext
@@ -1810,7 +1831,7 @@ const toBuyerPendingPaymentFailedMessage = async (
 };
 
 const toAdminChannelPendingPaymentFailedMessage = async (
-  bot: Telegraf<MainContext>,
+  bot: MainContext,
   user: UserDocument,
   order: IOrder,
   pending: IPendingPayment,

@@ -141,6 +141,7 @@ buyer_took_your_order: |
 
   Once you verify you have received the full amount, you have to release the tokens
 waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends your tokens for the order ID #${orderId}, as soon as payment is made I will put you both in touch'
+received_less_than_expected: 'I received less than ${amount} tokens for order ${orderId} in the escrow wallet address, please send ${diff} more tokens to continue.'
 sell_success: Your tokens sale has been completed after confirming the payment from @${buyerUsername} ⚡️🍊⚡️
 funds_released: 🕐 @${sellerUsername} already released the tokens, expect your invoice to be paid any time, remember your wallet needs to be online to receive through Lightning Network.
 rate_counterpart: 'Please qualify your counterparty:'

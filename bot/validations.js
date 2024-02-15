@@ -266,38 +266,7 @@ const validateLightningAddress = async lightningAddress => {
 
 const validateInvoice = async (ctx, lnInvoice) => {
   try {
-    // EVMTODO
-    return true;
-    const invoice = parsePaymentRequest({ request: lnInvoice });
-    const latestDate = new Date(
-      Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)
-    ).toISOString();
-    if (!!invoice.tokens && invoice.tokens < process.env.MIN_PAYMENT_AMT) {
-      await messages.minimunAmountInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (new Date(invoice.expires_at) < latestDate) {
-      await messages.minimunExpirationTimeInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (invoice.is_expired !== false) {
-      await messages.expiredInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (!invoice.destination) {
-      await messages.requiredAddressInvoiceMessage(ctx);
-      return false;
-    }
-
-    if (!invoice.id) {
-      await messages.requiredHashInvoiceMessage(ctx);
-      return false;
-    }
-
-    return invoice;
+    return ethers.isAddress(lnInvoice);
   } catch (error) {
     logger.error(error);
     logger.debug(lnInvoice);
@@ -307,51 +276,7 @@ const validateInvoice = async (ctx, lnInvoice) => {
 
 const isValidInvoice = async (ctx, lnInvoice) => {
   try {
-    // EVMTODO
     return { success: isAddress(lnInvoice) };
-    const invoice = parsePaymentRequest({ request: lnInvoice });
-    const latestDate = new Date(
-      Date.now() + parseInt(process.env.INVOICE_EXPIRATION_WINDOW)
-    ).toISOString();
-    if (!!invoice.tokens && invoice.tokens < process.env.MIN_PAYMENT_AMT) {
-      await messages.invoiceMustBeLargerMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (new Date(invoice.expires_at) < latestDate) {
-      await messages.invoiceExpiryTooShortMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (invoice.is_expired !== false) {
-      await messages.invoiceHasExpiredMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (!invoice.destination) {
-      await messages.invoiceHasWrongDestinationMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    if (!invoice.id) {
-      await messages.requiredHashInvoiceMessage(ctx);
-      return {
-        success: false,
-      };
-    }
-
-    return {
-      success: true,
-      invoice,
-    };
   } catch (error) {
     await messages.invoiceInvalidMessage(ctx);
     return {

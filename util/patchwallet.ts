@@ -1,5 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import { ensureEnv, lazyMemo } from '.';
+import { TOKEN_CONTRACT, encodeTransferTx } from '../ln/evm';
+import { logger } from '../logger';
 
 const PATCHWALLET_API_BASE = 'https://paymagicapi.com/v1/';
 
@@ -19,39 +22,6 @@ async function getSecretVersion(secretName: string): Promise<string | null> {
   }
 }
 
-function lazyMemo<T>(
-  refreshMs: number,
-  invalidMs: number,
-  getter: () => Promise<T>
-): () => Promise<T> {
-  let ts = 0;
-  let value: T;
-  async function refresh() {
-    value = await getter();
-    ts = Date.now();
-    return value;
-  }
-  return async () => {
-    if (Date.now() > ts + invalidMs) {
-      return await refresh();
-    }
-    if (Date.now() > ts + refreshMs) {
-      refresh().catch(() => {
-        ts = 0; // Retry on next access, throw at that time if still error
-      });
-    }
-    return value;
-  };
-}
-const ensureEnv = (key: string) => {
-  const ret = process.env[key];
-  if (!ret) {
-    console.error('Error: Environment variable not set:', key);
-    setTimeout(() => process.exit(1), 0); // Check more variables before exiting
-    return '';
-  }
-  return ret;
-};
 const SECRET_PATCHWALLET_CLIENT_ID = ensureEnv('SECRET_PATCHWALLET_CLIENT_ID');
 const SECRET_PATCHWALLET_CLIENT_SECRET = ensureEnv(
   'SECRET_PATCHWALLET_CLIENT_SECRET'
@@ -111,10 +81,68 @@ const pwApi = async <TResult = unknown, TConfig = unknown>(
   ).data;
 
 const PATCHWALLET_ID_PREFIX = ensureEnv('PATCHWALLET_ID_PREFIX');
+const PATCHWALLET_CHAIN_NAME = ensureEnv('PATCHWALLET_CHAIN_NAME');
+const addressCache = new Map<string, string>();
 export async function getAddressFromSecret(secret: string) {
-  return (
+  if (addressCache.has(secret)) {
+    return addressCache.get(secret);
+  }
+  const result = (
     await pwApi<{ users: { accountAddress: string }[] }>('resolver', {
       userIds: `${PATCHWALLET_ID_PREFIX}${secret}`,
     })
   ).users[0].accountAddress;
+  if (addressCache.size > 200) {
+    for (const key of addressCache.keys()) {
+      addressCache.delete(key);
+      if (addressCache.size < 100) {
+        break;
+      }
+    }
+  }
+  addressCache.set(secret, result);
+  return result;
+}
+
+async function sendTx({
+  secret,
+  to,
+  value = '0x0',
+  data,
+  delegatecall = 0,
+}: {
+  secret: string;
+  to: string;
+  value?: string;
+  data: string;
+  delegatecall?: 0 | 1;
+}) {
+  return await pwApi<{ userOpHash: string; txHash?: string }>('kernel/tx', {
+    userId: `${PATCHWALLET_ID_PREFIX}${secret}`,
+    chain: PATCHWALLET_CHAIN_NAME,
+    to: [to],
+    value: [value],
+    data: [data],
+    delegatecall,
+    auth: '',
+  }).then(result => {
+    logger.debug('tx result: ' + JSON.stringify(result));
+    return result;
+  });
+}
+
+export async function transferToken({
+  secret,
+  to,
+  amount,
+}: {
+  secret: string;
+  to: string;
+  amount: bigint;
+}) {
+  return await sendTx({
+    secret,
+    to: TOKEN_CONTRACT,
+    data: await encodeTransferTx(to, amount),
+  });
 }

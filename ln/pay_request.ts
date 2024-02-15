@@ -5,28 +5,43 @@ import * as messages from '../bot/messages';
 import { logger } from '../logger';
 import { IOrder } from '../models/order';
 import { MainContext } from '../bot/start';
+import { getAddressBalance } from './evm';
+import { ethers } from 'ethers';
+import { transferToken } from '../util/patchwallet';
 
-// EVMTODO: For MVP only, replace with something meaningful later
-const completedPayments = new Set<string>();
-
-const payRequest = async ({
-  request,
-  amount,
-}: {
-  request: string;
-  amount: string;
-}) => {
+const payRequest = async (order: IOrder) => {
   try {
-    logger.info(`EVMTODO: payRequest ${amount} ${request}`);
-    setTimeout(() => completedPayments.add(request), 1000);
+    if (!order.hash || !order.secret) {
+      throw new Error(`Order ${order._id.toString()} has no hash`);
+    }
+    const to = ethers.getAddress(order.buyer_invoice);
+    const balance = await getAddressBalance(order.hash);
+    let txHash = 'NONE';
+    if (balance > 0) {
+      const result = await transferToken({
+        secret: order.secret,
+        to,
+        amount: balance,
+      });
+      if (result.txHash) {
+        txHash = result.txHash;
+      } else {
+        txHash = 'USEROPHASH-' + result.userOpHash;
+      }
+    }
     return {
       is_expired: false,
       confirmed_at: new Date(),
-      id: request,
+      id: order.secret,
+      secret: txHash,
       fee: 0,
     };
-  } catch (error) {
-    logger.error(`payRequest: ${error?.toString()}`);
+  } catch (error: any) {
+    logger.error(
+      `payRequest: ${error?.toString()}\n${JSON.stringify(
+        error?.response.data || error?.stack
+      )}`
+    );
     return false;
   }
 };
@@ -38,10 +53,7 @@ const payToBuyer = async (bot: MainContext, order: IOrder) => {
     if (isPending) {
       return;
     }
-    const payment = await payRequest({
-      request: order.buyer_invoice,
-      amount: order.amount.toString(),
-    });
+    const payment = await payRequest(order);
     const buyerUser = await User.findOne({ _id: order.buyer_id });
     if (!buyerUser) {
       logger.warn(

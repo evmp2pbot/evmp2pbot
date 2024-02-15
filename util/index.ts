@@ -163,9 +163,8 @@ export const getBtcFiatPrice = async (fiatCode: string, fiatAmount: bigint) => {
 
 export const getBtcExchangePrice = (fiatAmount: number, satsAmount: number) => {
   try {
-    // EVMTODO
-    const satsPerBtc = 1e8;
-    const feeRate = (satsPerBtc * fiatAmount) / satsAmount;
+    const satsPerBtc = BigInt(1e8);
+    const feeRate = (satsPerBtc * BigInt(fiatAmount)) / BigInt(satsAmount);
 
     return feeRate;
   } catch (error) {
@@ -532,3 +531,38 @@ export const getStars = (rate: number, totalReviews: number | string) => {
 
   return `${roundedRating} ${stars} (${totalReviews})`;
 };
+
+export const ensureEnv = (key: string) => {
+  const ret = process.env[key];
+  if (!ret) {
+    console.error('Error: Environment variable not set:', key);
+    setTimeout(() => process.exit(1), 0); // Check more variables before exiting
+    return '';
+  }
+  return ret;
+};
+
+export function lazyMemo<T>(
+  refreshMs: number,
+  invalidMs: number,
+  getter: () => Promise<T>
+): () => Promise<T> {
+  let ts = 0;
+  let value: T;
+  async function refresh() {
+    value = await getter();
+    ts = Date.now();
+    return value;
+  }
+  return async () => {
+    if (Date.now() > ts + invalidMs) {
+      return await refresh();
+    }
+    if (Date.now() > ts + refreshMs) {
+      refresh().catch(() => {
+        ts = 0; // Retry on next access, throw at that time if still error
+      });
+    }
+    return value;
+  };
+}
