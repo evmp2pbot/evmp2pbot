@@ -11,7 +11,7 @@ const { delay } = require('./util');
 (async () => {
   process.on('unhandledRejection', e => {
     if (e) {
-      logger.error(`Unhandled Rejection: ${e}`);
+      logger.error(`Unhandled Rejection: ${e} ${e?.stack}`);
     }
   });
 

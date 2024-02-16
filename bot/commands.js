@@ -34,54 +34,39 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
     order.buyer_invoice = buyerInvoice;
     // We need the i18n context to send the message with the correct language
     const i18nCtx = await getUserI18nContext(seller);
-    // If the buyer is the creator, at this moment the seller already paid the hold invoice
-    if (order.creator_id === order.buyer_id) {
-      order.status = 'ACTIVE';
-      // Message to buyer
-      await messages.addInvoiceMessage(ctx, bot, buyer, seller, order);
-      // Message to seller
-      await messages.sendBuyerInfo2SellerMessage(
-        bot,
-        buyer,
-        seller,
-        order,
-        i18nCtx
-      );
-    } else {
-      // We create a hold invoice
-      const description = i18nCtx.t('hold_invoice_memo', {
-        botName: ctx.botInfo.username,
-        orderId: order._id,
-        fiatCode: order.fiat_code,
-        fiatAmount: order.fiat_amount,
-      });
-      const amount = Math.floor(order.amount + order.fee);
-      const { request, hash, secret } = await createHoldInvoice({
-        amount,
-        description,
-      });
-      order.hash = hash;
-      order.secret = secret;
-      order.taken_at = Date.now();
-      order.status = 'WAITING_PAYMENT';
-      await order.save();
-      // We monitor the invoice to know when the seller makes the payment
-      subscribeToTransfer(bot, hash);
 
-      // We pass the buyer for rate and age calculations
-      const buyer = await User.findById(order.buyer_id);
-      // We send the hold invoice to the seller
-      await messages.invoicePaymentRequestMessage(
-        ctx,
-        seller,
-        request,
-        order,
-        i18nCtx,
-        buyer
-      );
-      await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
-    }
+    // We create a hold invoice
+    const description = i18nCtx.t('hold_invoice_memo', {
+      botName: ctx.botInfo.username,
+      orderId: order._id,
+      fiatCode: order.fiat_code,
+      fiatAmount: order.fiat_amount,
+    });
+    const amount = Math.floor(order.amount + order.fee);
+    const { request, hash, secret } = await createHoldInvoice({
+      amount,
+      description,
+    });
+    order.hash = hash;
+    order.secret = secret;
+    order.taken_at = Date.now();
+    order.status = 'WAITING_PAYMENT';
     await order.save();
+    // We monitor the invoice to know when the seller makes the payment
+    subscribeToTransfer(bot, hash);
+
+    // We pass the buyer for rate and age calculations
+    const buyer = await User.findById(order.buyer_id);
+    // We send the hold invoice to the seller
+    await messages.invoicePaymentRequestMessage(
+      ctx,
+      seller,
+      request,
+      order,
+      i18nCtx,
+      buyer
+    );
+    await messages.takeSellWaitingSellerToPayMessage(ctx, bot, buyer, order);
   } catch (error) {
     logger.error(`Error in waitPayment: ${error}`);
   }

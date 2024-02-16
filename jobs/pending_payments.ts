@@ -17,7 +17,7 @@ exports.attemptPendingPayments = async (bot: MainContext): Promise<void> => {
   for (const pending of pendingPayments) {
     const order = await Order.findOne({ _id: pending.order_id });
     if (!order) {
-      logger.warn(
+      logger.warning(
         `Order ${pending.order_id.toString()} of PendingPayment ${pending._id.toString()}`
       );
       continue;

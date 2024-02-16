@@ -39,7 +39,7 @@ const payRequest = async (order: IOrder) => {
   } catch (error: any) {
     logger.error(
       `payRequest: ${error?.toString()}\n${JSON.stringify(
-        error?.response.data || error?.stack
+        error?.response?.data || error?.stack
       )}`
     );
     return false;
