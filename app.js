@@ -17,7 +17,7 @@ const { delay } = require('./util');
 
   process.on('uncaughtException', e => {
     if (e) {
-      logger.error(`Uncaught Exception: ${e}`);
+      logger.error(`Uncaught Exception: ${e} ${e?.stack}`);
     }
   });
 

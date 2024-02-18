@@ -7,31 +7,47 @@ import { logger } from '../logger';
 const PATCHWALLET_API_BASE = 'https://paymagicapi.com/v1/';
 
 const secretClient = new SecretManagerServiceClient();
-async function getSecretVersion(secretName: string): Promise<string | null> {
-  try {
-    const [version] = await secretClient.accessSecretVersion({
-      name: secretName,
-    });
-
-    // Extract the secret's content
-    const secretValue = version?.payload?.data?.toString();
-    return secretValue || '';
-  } catch (err) {
-    console.error(`Error retrieving the secret: ${err}`);
-    return null; // Returns null in case of an error
+const alreadyEmittedWarning = new Set<string>();
+async function getSecretVersion(envName: string): Promise<string | null> {
+  const secretName = ensureEnv(envName);
+  if (!/^projects\/\d+\/secrets\/.*/.test(secretName)) {
+    if (process.env.NODE_ENV !== 'production') {
+      if (!alreadyEmittedWarning.has(envName)) {
+        logger.warning(
+          `Using environment variable ${envName} as secret directly`
+        );
+        alreadyEmittedWarning.add(envName);
+      }
+      return secretName;
+    }
+    throw new Error(`Invalid secret path: ${envName}`);
   }
+  const [version] = await secretClient.accessSecretVersion({
+    name: secretName,
+  });
+
+  // Extract the secret's content
+  const secretValue = version?.payload?.data?.toString();
+  if (!secretValue) {
+    throw new Error(`Got invalid result for secret ${envName}`);
+  }
+  return secretValue;
 }
 
-const SECRET_PATCHWALLET_CLIENT_ID = ensureEnv('SECRET_PATCHWALLET_CLIENT_ID');
-const SECRET_PATCHWALLET_CLIENT_SECRET = ensureEnv(
-  'SECRET_PATCHWALLET_CLIENT_SECRET'
-);
+ensureEnv('SECRET_PATCHWALLET_CLIENT_ID');
+ensureEnv('SECRET_PATCHWALLET_CLIENT_SECRET');
 const getClientId = lazyMemo(60000, 86400 * 7 * 1000, () =>
-  getSecretVersion(SECRET_PATCHWALLET_CLIENT_ID)
+  getSecretVersion('SECRET_PATCHWALLET_CLIENT_ID')
 );
 const getClientSecret = lazyMemo(60000, 86400 * 7 * 1000, () =>
-  getSecretVersion(SECRET_PATCHWALLET_CLIENT_SECRET)
+  getSecretVersion('SECRET_PATCHWALLET_CLIENT_SECRET')
 );
+const failFast = (f: () => Promise<unknown>) =>
+  f().catch(e => {
+    console.error(e?.toString());
+    setTimeout(() => process.exit(1), 1000).unref();
+    return Promise.reject(e);
+  });
 
 async function pwRawApi<TResult = unknown, TConfig = unknown>(
   path: string,
@@ -59,6 +75,11 @@ const getAccessToken = lazyMemo(
       })
     ).data.access_token
 );
+
+// Fail early if any setting is incorrect
+Promise.all([failFast(getClientId), failFast(getClientSecret)])
+  .then(() => failFast(getAccessToken))
+  .catch();
 
 const pwApi = async <TResult = unknown, TConfig = unknown>(
   path: string,
