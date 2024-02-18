@@ -4,3 +4,4 @@ admin.macaroon
 tls.cert
 *.d.ts
 *.bak
+*.js
