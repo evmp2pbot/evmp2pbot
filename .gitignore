@@ -5,3 +5,4 @@ tls.cert
 *.d.ts
 *.bak
 *.js
+.vscode
