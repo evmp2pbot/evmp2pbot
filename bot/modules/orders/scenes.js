@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/await-thenable */
 const { Scenes, Markup } = require('telegraf');
 const { logger } = require('../../../logger');
 const { getCurrency } = require('../../../util');
