@@ -9,7 +9,7 @@ RUN npm ci
 
 # Copy bundle App source
 COPY . .
-RUN npm run build
+RUN npm run build && touch .env
 
 # Run App
 CMD ["npm", "start"]
