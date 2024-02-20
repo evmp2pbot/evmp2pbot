@@ -5,8 +5,8 @@ on: [push]
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   GCP_ZONE: us-central1
-  ENVIRONMENT_NAME: ${{ (github.ref != 'master' && github.ref != 'main') && github.ref || 'production' }}
-  IMAGE: ${{ github.event.repository.name }}${{ (github.ref != 'master' && github.ref != 'main') && format('-{0}', github.ref) || '' }}
+  ENVIRONMENT_NAME: ${{ (github.ref_name != 'master' && github.ref_name != 'main') && github.ref_name || 'production' }}
+  IMAGE: ${{ github.event.repository.name }}${{ (github.ref_name != 'master' && github.ref_name != 'main') && format('-{0}', github.ref_name) || '' }}
 
 jobs:
   main:
@@ -33,12 +33,6 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ secrets.GCP_PROJECT }}
 
-
-      # Configure Docker to use the gcloud command-line tool as a credential
-      # helper for authentication
-      - run: |-
-          gcloud --quiet auth configure-docker $GCP_ZONE-docker.pkg.dev
-
       # Build the Docker image
       - name: Build
         env:
@@ -53,4 +47,5 @@ jobs:
         env:
           TAG: ${{ steps.vars.outputs.tag }}
         run: |-
+          gcloud auth configure-docker $GCP_ZONE-docker.pkg.dev
           docker push "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$IMAGE/$IMAGE-$ENVIRONMENT_NAME:$TAG"
