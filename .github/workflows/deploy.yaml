@@ -47,5 +47,5 @@ jobs:
         env:
           TAG: ${{ steps.vars.outputs.tag }}
         run: |-
-          gcloud auth configure-docker $GCP_ZONE-docker.pkg.dev
+          gcloud auth --quiet configure-docker $GCP_ZONE-docker.pkg.dev --project $PROJECT_ID
           docker push "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$IMAGE/$IMAGE-$ENVIRONMENT_NAME:$TAG"
