@@ -9,7 +9,7 @@ RUN npm install
 
 # Copy bundle App source
 COPY . .
-RUN npm build
+RUN npm run build
 
 # Run App
 CMD ["npm", "start"]
