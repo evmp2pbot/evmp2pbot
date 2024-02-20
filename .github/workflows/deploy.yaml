@@ -1,0 +1,56 @@
+name: Deploy
+
+on: [push]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  GCP_ZONE: us-central1
+  ENVIRONMENT_NAME: ${{ (github.ref != 'master' && github.ref != 'main') && github.ref || 'production' }}
+  IMAGE: ${{ github.event.repository.name }}${{ (github.ref != 'master' && github.ref != 'main') && format('-{0}', github.ref) || '' }}
+
+jobs:
+  main:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get commit hash
+        id: vars
+        shell: bash
+        run: |
+          echo "::set-output name=tag::$(git rev-parse HEAD)-$GITHUB_SHA"
+
+      - uses: google-github-actions/setup-gcloud@v1
+
+      - id: "Auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - run: |-
+          gcloud --quiet auth configure-docker $GCP_ZONE-docker.pkg.dev
+
+      # Build the Docker image
+      - name: Build
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |-
+          docker build \
+            --tag "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$IMAGE/$IMAGE-$ENVIRONMENT_NAME:$TAG" \
+            .
+
+      # Push the Docker image to Google Container Registry
+      - name: Publish
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |-
+          docker push "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$IMAGE/$IMAGE-$ENVIRONMENT_NAME:$TAG"
