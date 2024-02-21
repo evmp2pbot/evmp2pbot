@@ -54,6 +54,7 @@ jobs:
         env:
           REPO_URL_FULL: ${{ steps.vars.outputs.repo_url_full }}
         run: |-
+          set -x
           # Do not use `gcloud compute instances update-container` here, as it causes long downtime
           ZONE="$(gcloud compute instances list --filter="name=$GCP_VM_NAME" --format="value(zone.basename())")"
           CONTAINER_DECL="$(gcloud compute instances describe evmp2pbot --zone "$ZONE" --format="value(metadata.items.gce-container-declaration)")"
