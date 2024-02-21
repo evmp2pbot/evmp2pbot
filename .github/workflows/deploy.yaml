@@ -49,7 +49,6 @@ jobs:
         run: |-
           gcloud auth --quiet configure-docker $GCP_ZONE-docker.pkg.dev --project $PROJECT_ID
           docker push "$REPO_URL_FULL"
-          gcloud compute instances update-container "$GCP_VM_NAME" --zone "$(gcloud compute instances list --filter="name=$GCP_VM_NAME" --format="value(zone.basename())")" --container-image "$REPO_URL_FULL"
 
       - name: Update container
         env:
