@@ -18,7 +18,7 @@ exports.takeDispute = async ctx => {
     if (order.community_id != admin.default_community_id)
       return await globalMessages.notAuthorized(ctx, tgId);
   }
-  ctx.deleteMessage();
+  await ctx.deleteMessage().catch(() => {});
   const solver = await User.findOne({ tg_id: tgId });
   if (dispute.status === 'RELEASED')
     return await messages.sellerReleased(ctx, solver);

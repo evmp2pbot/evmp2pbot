@@ -85,9 +85,9 @@ exports.onSetCommunity = async ctx => {
 };
 
 exports.withdrawEarnings = async ctx => {
-  ctx.deleteMessage();
+  await ctx.deleteMessage().catch(() => {});
   const community = await Community.findById(ctx.match[1]);
-  ctx.scene.enter('ADD_EARNINGS_INVOICE_WIZARD_SCENE_ID', {
+  await ctx.scene.enter('ADD_EARNINGS_INVOICE_WIZARD_SCENE_ID', {
     community,
   });
 };

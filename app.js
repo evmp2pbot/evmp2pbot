@@ -8,7 +8,7 @@ const { resubscribeInvoices } = require('./ln');
 const { logger } = require('./logger');
 const { delay } = require('./util');
 
-(async () => {
+void (async () => {
   process.on('unhandledRejection', e => {
     if (e) {
       logger.error(`Unhandled Rejection: ${e} ${e?.stack}`);

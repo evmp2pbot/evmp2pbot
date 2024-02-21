@@ -9,7 +9,7 @@ exports.configure = bot => {
       const { user } = ctx;
       await ctx.scene.enter(Scenes.Settings.id, { user });
     } catch (err) {
-      ctx.reply(err.message);
+      return ctx.reply(err.message);
     }
   });
 };

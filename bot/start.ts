@@ -200,7 +200,7 @@ const initialize = (
       const tgUser = ctx.update.message.from;
       if (!tgUser.username) return await messages.nonHandleErrorMessage(ctx);
 
-      messages.startMessage(ctx);
+      await messages.startMessage(ctx);
       await validateUser(ctx, true);
     } catch (error) {
       logger.error(error);
@@ -560,7 +560,7 @@ const initialize = (
 
       if (!order) return;
       await subscribeInvoice(bot, hash, true);
-      ctx.reply(`hash resubscribed`);
+      await ctx.reply(`hash resubscribed`);
     } catch (error: any) {
       logger.error(`/resubscribe command error: ${error.toString()}`);
     }
@@ -850,7 +850,7 @@ const initialize = (
       if (ctx.match === null) {
         throw new Error('ctx.match should not be null');
       }
-      ctx.deleteMessage();
+      await ctx.deleteMessage().catch(() => {});
       await cancelOrder(ctx, ctx.match[1]);
     }
   );
@@ -862,7 +862,7 @@ const initialize = (
       if (ctx.match === null) {
         throw new Error('ctx.match should not be null');
       }
-      ctx.deleteMessage();
+      await ctx.deleteMessage().catch(() => {});
       await fiatSent(ctx, ctx.match[1]);
     }
   );
@@ -874,7 +874,7 @@ const initialize = (
       if (ctx.match === null) {
         throw new Error('ctx.match should not be null');
       }
-      ctx.deleteMessage();
+      await ctx.deleteMessage().catch(() => {});
       await release(ctx, ctx.match[1]);
     }
   );
@@ -940,7 +940,7 @@ const initialize = (
       show = show === 'yes';
       ctx.user.show_username = show;
       await ctx.user.save();
-      messages.updateUserSettingsMessage(ctx, 'showusername', show);
+      await messages.updateUserSettingsMessage(ctx, 'showusername', show);
     } catch (error) {
       logger.error(error);
     }
@@ -953,7 +953,7 @@ const initialize = (
       show = show === 'yes';
       ctx.user.show_volume_traded = show;
       await ctx.user.save();
-      messages.updateUserSettingsMessage(ctx, 'showvolume', show);
+      await messages.updateUserSettingsMessage(ctx, 'showvolume', show);
     } catch (error) {
       logger.error(error);
     }
@@ -981,7 +981,7 @@ const initialize = (
       } else {
         message = ctx.i18n.t('unknown_command');
       }
-      ctx.reply(message);
+      await ctx.reply(message);
     } catch (error) {
       logger.error(error);
     }
@@ -996,7 +996,7 @@ const start = (
 ): Telegraf<MainContext> => {
   const bot = initialize(botToken, options);
 
-  bot.launch();
+  void bot.launch();
 
   logger.notice('Bot launched.');
 

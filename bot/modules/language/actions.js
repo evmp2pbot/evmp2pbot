@@ -5,7 +5,7 @@ exports.setLanguage = async ctx => {
   const user = await User.findOne({ tg_id: tgId });
   if (!user) return;
   const code = ctx.match[1];
-  ctx.deleteMessage();
+  await ctx.deleteMessage().catch(() => {});
   user.lang = code;
   ctx.i18n.locale(code);
   await user.save();

@@ -33,7 +33,7 @@ exports.configure = bot => {
       if (await commands.isMaxPending(ctx.user))
         return await tooManyPendingOrdersMessage(ctx, ctx.user, ctx.i18n);
 
-      commands.buyWizard(ctx);
+      return commands.buyWizard(ctx);
     },
     commands.buy
   );
@@ -47,7 +47,7 @@ exports.configure = bot => {
       if (await commands.isMaxPending(ctx.user))
         return await tooManyPendingOrdersMessage(ctx, ctx.user, ctx.i18n);
 
-      commands.sellWizard(ctx);
+      return commands.sellWizard(ctx);
     },
     commands.sell
   );

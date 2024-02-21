@@ -63,7 +63,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -134,7 +134,7 @@ const addInvoicePHIWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );

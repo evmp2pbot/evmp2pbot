@@ -1565,7 +1565,10 @@ const wizardAddFiatAmountWrongAmountMessage = async (
   order: IOrder
 ) => {
   try {
-    ctx.deleteMessage().catch(e => logger.error(e));
+    await ctx
+      .deleteMessage()
+      .catch(() => {})
+      .catch(e => logger.error(e));
     await ctx.reply(
       ctx.i18n.t('wizard_add_fiat_wrong_amount', {
         minAmount: numberFormat(order.fiat_code, order.min_amount),

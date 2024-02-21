@@ -74,8 +74,8 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
 
 const addInvoice = async (ctx, bot, order) => {
   try {
-    ctx.deleteMessage();
-    ctx.scene.leave();
+    await ctx.deleteMessage().catch(() => {});
+    await ctx.scene.leave();
     if (!order) {
       const orderId = ctx.update.callback_query.message.text;
       if (!orderId) return;
@@ -91,12 +91,11 @@ const addInvoice = async (ctx, bot, order) => {
     const buyer = await User.findOne({ _id: order.buyer_id });
 
     if (order.fiat_amount === undefined) {
-      ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
+      return ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
         bot,
         order,
         caller: buyer,
       });
-      return;
     }
 
     let amount = order.amount;
@@ -126,13 +125,13 @@ const addInvoice = async (ctx, bot, order) => {
         logger.warn(
           `lightning address ${buyer.lightning_address} not available`
         );
-        messages.unavailableLightningAddress(
+        await messages.unavailableLightningAddress(
           ctx,
           bot,
           buyer,
           buyer.lightning_address
         );
-        ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
+        await ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
           order,
           seller,
           buyer,
@@ -142,7 +141,7 @@ const addInvoice = async (ctx, bot, order) => {
         await waitPayment(ctx, bot, buyer, seller, order, laRes.pr);
       }
     } else {
-      ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('ADD_INVOICE_WIZARD_SCENE_ID', {
         order,
         seller,
         buyer,
@@ -156,8 +155,8 @@ const addInvoice = async (ctx, bot, order) => {
 
 const rateUser = async (ctx, bot, rating, orderId) => {
   try {
-    ctx.deleteMessage();
-    ctx.scene.leave();
+    await ctx.deleteMessage().catch(() => {});
+    await ctx.scene.leave();
     const callerId = ctx.from.id;
 
     if (!orderId) return;
@@ -217,8 +216,8 @@ const cancelAddInvoice = async (ctx, order, job) => {
   try {
     let userAction = false;
     if (!job) {
-      ctx.deleteMessage();
-      ctx.scene.leave();
+      await ctx.deleteMessage().catch(() => {});
+      await ctx.scene.leave();
       userAction = true;
       if (!order) {
         const orderId = !!ctx && ctx.update.callback_query.message.text;
@@ -323,7 +322,7 @@ const cancelAddInvoice = async (ctx, order, job) => {
 
 const showHoldInvoice = async (ctx, bot, order) => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage().catch(() => {});
     if (!order) {
       const orderId = ctx.update.callback_query.message.text;
       if (!orderId) return;
@@ -341,12 +340,11 @@ const showHoldInvoice = async (ctx, bot, order) => {
     }
 
     if (order.fiat_amount === undefined) {
-      ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
+      return ctx.scene.enter('ADD_FIAT_AMOUNT_WIZARD_SCENE_ID', {
         bot,
         order,
         caller: user,
       });
-      return;
     }
 
     // We create the hold invoice and show it to the seller
@@ -392,8 +390,8 @@ const cancelShowHoldInvoice = async (ctx, order, job) => {
   try {
     let userAction = false;
     if (!job) {
-      ctx.deleteMessage();
-      ctx.scene.leave();
+      await ctx.deleteMessage().catch(() => {});
+      await ctx.scene.leave();
       userAction = true;
       if (!order) {
         const orderId = !!ctx && ctx.update.callback_query.message.text;
@@ -503,7 +501,7 @@ const cancelShowHoldInvoice = async (ctx, order, job) => {
  */
 const addInvoicePHI = async (ctx, bot, orderId) => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage().catch(() => {});
     const order = await Order.findOne({ _id: orderId });
     // orders with status PAID_HOLD_INVOICE are released payments
     if (order.status !== 'PAID_HOLD_INVOICE') {
@@ -517,7 +515,11 @@ const addInvoicePHI = async (ctx, bot, orderId) => {
       return;
     }
 
-    ctx.scene.enter('ADD_INVOICE_PHI_WIZARD_SCENE_ID', { order, buyer, bot });
+    await ctx.scene.enter('ADD_INVOICE_PHI_WIZARD_SCENE_ID', {
+      order,
+      buyer,
+      bot,
+    });
   } catch (error) {
     logger.error(error);
   }

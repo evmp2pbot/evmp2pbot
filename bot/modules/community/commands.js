@@ -133,7 +133,7 @@ exports.findCommunity = async ctx => {
 
 exports.updateCommunity = async (ctx, id, field, bot) => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage().catch(() => {});
     if (!id) return;
     const tgUser = ctx.update.callback_query.from;
     if (!tgUser) return;
@@ -152,50 +152,53 @@ exports.updateCommunity = async (ctx, id, field, bot) => {
     }
 
     if (field === 'name') {
-      ctx.scene.enter('UPDATE_NAME_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_NAME_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         user,
         community,
       });
     } else if (field === 'currencies') {
-      ctx.scene.enter('UPDATE_CURRENCIES_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_CURRENCIES_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         user,
         community,
       });
     } else if (field === 'group') {
-      ctx.scene.enter('UPDATE_GROUP_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_GROUP_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         bot,
         user,
         community,
       });
     } else if (field === 'channels') {
-      ctx.scene.enter('UPDATE_CHANNELS_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_CHANNELS_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         bot,
         user,
         community,
       });
     } else if (field === 'fee') {
-      ctx.scene.enter('UPDATE_FEE_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_FEE_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         user,
         community,
       });
     } else if (field === 'solvers') {
-      ctx.scene.enter('UPDATE_SOLVERS_COMMUNITY_WIZARD_SCENE_ID', {
+      await ctx.scene.enter('UPDATE_SOLVERS_COMMUNITY_WIZARD_SCENE_ID', {
         id,
         user,
         community,
       });
     } else if (field === 'disputeChannel') {
-      ctx.scene.enter('UPDATE_DISPUTE_CHANNEL_COMMUNITY_WIZARD_SCENE_ID', {
-        id,
-        bot,
-        user,
-        community,
-      });
+      await ctx.scene.enter(
+        'UPDATE_DISPUTE_CHANNEL_COMMUNITY_WIZARD_SCENE_ID',
+        {
+          id,
+          bot,
+          user,
+          community,
+        }
+      );
     }
   } catch (error) {
     logger.error(error);
@@ -204,7 +207,7 @@ exports.updateCommunity = async (ctx, id, field, bot) => {
 
 exports.deleteCommunity = async ctx => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage().catch(() => {});
     const id = ctx.match[1];
 
     if (!(await validateObjectId(ctx, id))) return;
@@ -226,7 +229,7 @@ exports.deleteCommunity = async ctx => {
 
 exports.changeVisibility = async ctx => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage().catch(() => {});
     const id = ctx.match[1];
 
     if (!(await validateObjectId(ctx, id))) return;

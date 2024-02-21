@@ -13,10 +13,10 @@ MONGO_URI = process.env.MONGO_URI ? process.env.MONGO_URI : MONGO_URI;
 if (!MONGO_URI) {
   throw new Error('You must provide a MongoDB URI');
 }
-logger.info(`Connecting to: ${MONGO_URI.replace(/\/\/[^/]+?@/,'//***@')}`);
+logger.info(`Connecting to: ${MONGO_URI.replace(/\/\/[^/]+?@/, '//***@')}`);
 const connect = () => {
-  mongoose.connect(MONGO_URI);
+  void mongoose.connect(MONGO_URI);
   return mongoose;
 };
 
-export { connect };
+export { connect, MONGO_URI };

@@ -80,7 +80,7 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
       if (order) {
         const publishFn =
           type === 'buy' ? publishBuyOrderMessage : publishSellOrderMessage;
-        publishFn(ctx, user, order, ctx.i18n, true);
+        await publishFn(ctx, user, order, ctx.i18n, true);
       }
       return ctx.scene.leave();
     } catch (err) {

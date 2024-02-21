@@ -116,7 +116,7 @@ const buy = async ctx => {
       );
       community = await Community.findOne({ group: regex });
       if (!community) {
-        ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
         return;
       }
       communityId = community._id;

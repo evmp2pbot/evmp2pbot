@@ -90,7 +90,7 @@ exports.communityWizard = new Scenes.WizardScene(
     } catch (error) {
       const errString = error.toString();
       logger.error(error);
-      ctx.scene.leave();
+      await ctx.scene.leave();
       if (errString.includes('duplicate key'))
         await ctx.reply(ctx.i18n.t('wizard_community_duplicated_name'));
     }
@@ -125,13 +125,13 @@ const createCommunitySteps = {
       ctx.wizard.state.error = null;
       const name = text.trim();
       if (!name) {
-        ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
+        await ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
         ctx.wizard.state.error = ctx.i18n.t('wizard_community_enter_name');
         return await ctx.wizard.state.updateUI();
       }
       const length = 30;
       if (name.length > length) {
-        ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
+        await ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
         ctx.wizard.state.error = ctx.i18n.t(
           ctx.i18n.t('wizard_community_too_long_name', { length })
         );
@@ -458,7 +458,7 @@ exports.updateNameCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -468,7 +468,7 @@ exports.updateNameCommunityWizard = new Scenes.WizardScene(
       const name = ctx.message.text.trim();
       const length = 30;
       if (name.length > length) {
-        ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
         return await ctx.reply(
           ctx.i18n.t('wizard_community_too_long_name', { length })
         );
@@ -482,7 +482,7 @@ exports.updateNameCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -500,7 +500,7 @@ exports.updateGroupCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -526,7 +526,7 @@ exports.updateGroupCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -545,7 +545,7 @@ exports.updateCurrenciesCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -568,7 +568,7 @@ exports.updateCurrenciesCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -589,7 +589,7 @@ exports.updateChannelsCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -664,7 +664,7 @@ exports.updateChannelsCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -685,7 +685,7 @@ exports.updateSolversCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -736,7 +736,7 @@ exports.updateSolversCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -754,7 +754,7 @@ exports.updateFeeCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -781,7 +781,7 @@ exports.updateFeeCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -803,7 +803,7 @@ exports.updateDisputeChannelCommunityWizard = new Scenes.WizardScene(
       return ctx.wizard.next();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   },
   async ctx => {
@@ -830,7 +830,7 @@ exports.updateDisputeChannelCommunityWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );
@@ -887,7 +887,7 @@ exports.addEarningsInvoiceWizard = new Scenes.WizardScene(
       return ctx.scene.leave();
     } catch (error) {
       logger.error(error);
-      ctx.scene.leave();
+      return ctx.scene.leave();
     }
   }
 );

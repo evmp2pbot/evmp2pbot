@@ -4,7 +4,6 @@ admin.macaroon
 tls.cert
 *.d.ts
 *.bak
-*.js
 .vscode
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
