@@ -10,7 +10,7 @@ exports.userMiddleware = async (ctx, next) => {
   ctx.i18n.locale(user.lang);
   ctx.user = user;
 
-  next();
+  return next();
 };
 
 exports.adminMiddleware = async (ctx, next) => {
@@ -19,7 +19,7 @@ exports.adminMiddleware = async (ctx, next) => {
   ctx.i18n.locale(admin.lang);
   ctx.admin = admin;
 
-  next();
+  return next();
 };
 
 exports.superAdminMiddleware = async (ctx, next) => {
@@ -28,5 +28,5 @@ exports.superAdminMiddleware = async (ctx, next) => {
   ctx.i18n.locale(admin.lang);
   ctx.admin = admin;
 
-  next();
+  return next();
 };

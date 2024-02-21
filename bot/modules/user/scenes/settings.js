@@ -7,7 +7,7 @@ function make() {
   const resetMessage = async (ctx, next) => {
     delete ctx.scene.state.feedback;
     delete ctx.scene.state.error;
-    next();
+    return next();
   };
   async function mainData(ctx) {
     const { user } = ctx.scene.state;

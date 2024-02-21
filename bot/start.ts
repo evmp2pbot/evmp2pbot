@@ -154,6 +154,7 @@ const initialize = (
     logger.error(err);
   });
 
+  // Can't use persistent store here, session object may contain functions
   bot.use(session());
   bot.use(limit());
   bot.use(i18n.middleware());
@@ -236,7 +237,7 @@ const initialize = (
       if (config) {
         await ctx.reply(ctx.i18n.t('maintenance'));
       } else {
-        next();
+        return next();
       }
     } catch (error) {
       logger.error(error);

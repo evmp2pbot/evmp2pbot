@@ -16,7 +16,7 @@ exports.takeOrderActionValidation = async (ctx, next) => {
   try {
     const text = ctx.update.callback_query.message.text;
     if (!text) return;
-    next();
+    return next();
   } catch (err) {
     logger.error(err);
   }
@@ -25,7 +25,7 @@ exports.takeOrderValidation = async (ctx, next) => {
   try {
     const { user } = ctx;
     if (!(await validateUserWaitingOrder(ctx, ctx, user))) return;
-    next();
+    return next();
   } catch (err) {
     logger.error(err);
   }
@@ -35,7 +35,7 @@ exports.takebuyValidation = async (ctx, next) => {
     // Sellers with orders in status = FIAT_SENT, have to solve the order
     const isOnFiatSentStatus = await validateSeller(ctx, ctx.user);
     if (!isOnFiatSentStatus) return;
-    next();
+    return next();
   } catch (err) {
     logger.error(err);
   }
