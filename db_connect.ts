@@ -1,4 +1,4 @@
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose from 'mongoose';
 import { logger } from './logger';
 
 mongoose.set('strictQuery', false);
@@ -15,10 +15,7 @@ if (!MONGO_URI) {
 }
 logger.info(`Connecting to: ${MONGO_URI.replace(/\/\/[^/]+?@/,'//***@')}`);
 const connect = () => {
-  mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  } as ConnectOptions);
+  mongoose.connect(MONGO_URI);
   return mongoose;
 };
 

@@ -216,7 +216,7 @@ exports.deleteCommunity = async ctx => {
     if (!community) {
       return ctx.reply(ctx.i18n.t('no_permission'));
     }
-    await community.remove();
+    await community.deleteOne();
 
     return ctx.reply(ctx.i18n.t('operation_successful'));
   } catch (error) {

@@ -3,8 +3,7 @@
   "compilerOptions": {
     "strict": false,
     "allowJs": true,
-    "declaration": true,
-    "emitDeclarationOnly": true
+    "noEmit": true
   },
   "include": ["./**/*.js"]
 }

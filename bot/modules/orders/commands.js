@@ -166,16 +166,16 @@ async function enterWizard(ctx, user, type) {
   if (user.default_community_id) {
     const comm = await Community.findById(user.default_community_id);
     state.community = comm;
-    state.currencies = comm.currencies;
-    if (comm.currencies.length === 1) {
-      state.currency = comm.currencies[0];
+    state.currencies = comm?.currencies;
+    if (comm?.currencies.length === 1) {
+      state.currency = comm?.currencies[0];
     }
   }
   await ctx.scene.enter(Scenes.CREATE_ORDER, state);
 }
 
 const isMaxPending = async user => {
-  const pendingOrders = await Order.count({
+  const pendingOrders = await Order.countDocuments({
     status: 'PENDING',
     creator_id: user._id,
   });

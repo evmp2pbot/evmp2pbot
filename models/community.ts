@@ -48,6 +48,7 @@ export interface ICommunity extends Document {
   currencies: Array<string>;
   created_at: Date;
   nostr_public_key: string;
+  orders: number;
 }
 
 const CommunitySchema = new Schema<ICommunity>({
@@ -80,6 +81,7 @@ const CommunitySchema = new Schema<ICommunity>({
   },
   created_at: { type: Date, default: Date.now },
   nostr_public_key: { type: String },
+  orders: { type: Number, default: 0 },
 });
 
 export default mongoose.model<ICommunity>('Community', CommunitySchema);

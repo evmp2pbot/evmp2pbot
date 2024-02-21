@@ -260,7 +260,7 @@ const getOrder = async (
 const getOrders = async (
   ctx: MainContext,
   user: UserDocument,
-  status: string
+  status?: string
 ) => {
   try {
     const where = {
