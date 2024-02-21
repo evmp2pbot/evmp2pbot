@@ -3,7 +3,7 @@ import currencies from './fiat.json';
 import languages from './languages.json';
 import { Order, Community } from '../models';
 import { logger } from '../logger';
-import { UserDocument } from '../models/user';
+import { IUser, UserDocument } from '../models/user';
 import { IFiat } from './fiatModel';
 import { Telegram } from 'telegraf';
 import { IOrder } from '../models/order';
@@ -258,7 +258,7 @@ export const secondsToTime = (secs: number) => {
 
 export const isGroupAdmin = async (
   groupId: string | number,
-  user: UserDocument,
+  user: IUser,
   telegram: Telegram
 ) => {
   try {
@@ -435,7 +435,7 @@ export const isDisputeSolver = (community: ICommunity, user: UserDocument) => {
 
 // Return the fee the bot will charge to the seller
 // this fee is a combination from the global bot fee and the community fee
-export const getFee = async (amount: number, communityId: string) => {
+export const getFee = async (amount: number, communityId?: string) => {
   const maxFee = Math.round(amount * parseFloat(process.env.MAX_FEE || '0'));
   if (!communityId) return maxFee;
 
@@ -488,7 +488,7 @@ export const holdInvoiceExpirationInSecs = () => {
 };
 
 // Returns the user age in days
-export const getUserAge = (user: UserDocument) => {
+export const getUserAge = (user: IUser) => {
   const userCreationDate = new Date(user.created_at);
   const today = new Date();
   const ageInDays = Math.floor(

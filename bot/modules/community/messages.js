@@ -109,7 +109,7 @@ exports.listCommunitiesMessage = async (ctx, communities) => {
   try {
     let message = '';
     communities.forEach(community => {
-      message += `ID: #${community.id}\n`;
+      message += `ID: #${community._id}\n`;
       message += ctx.i18n.t('name') + `: ${community.name}\n`;
       message += ctx.i18n.t('group') + `: ${community.group}\n`;
       community.order_channels.forEach(channel => {

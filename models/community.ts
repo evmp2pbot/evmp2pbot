@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 
 const CURRENCIES: number = parseInt(process.env.COMMUNITY_CURRENCIES || '10');
 
@@ -10,7 +10,7 @@ const currencyLimits = (val: string): boolean => {
   return val.length > 0 && val.length <= CURRENCIES;
 };
 
-export interface IOrderChannel extends Document {
+export interface IOrderChannel {
   name: string;
   type: string;
 }
@@ -23,7 +23,7 @@ const OrderChannelSchema = new Schema<IOrderChannel>({
   },
 });
 
-export interface IUsernameId extends Document {
+export interface IUsernameId {
   id: string;
   username: string;
 }
@@ -33,7 +33,7 @@ const usernameIdSchema = new Schema<IUsernameId>({
   username: { type: String, required: true, trim: true },
 });
 
-export interface ICommunity extends Document {
+export interface ICommunity {
   name: string;
   creator_id: string;
   group: string;
@@ -84,4 +84,6 @@ const CommunitySchema = new Schema<ICommunity>({
   orders: { type: Number, default: 0 },
 });
 
-export default mongoose.model<ICommunity>('Community', CommunitySchema);
+const Model = mongoose.model<ICommunity>('Community', CommunitySchema);
+export type CommunityDocument = ReturnType<typeof Model['hydrate']>;
+export default Model;

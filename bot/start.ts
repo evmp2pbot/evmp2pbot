@@ -57,6 +57,11 @@ const {
   validateLightningAddress,
 } = require('./validations');
 import * as messages from './messages';
+import {
+  SceneContextScene,
+  WizardContextWizard,
+  WizardSessionData,
+} from 'telegraf/scenes';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -73,6 +78,9 @@ export interface MainContext extends Context {
   i18n: I18nContext;
   user: UserDocument;
   admin: UserDocument;
+
+  scene: SceneContextScene<MainContext, WizardSessionData>;
+  wizard: WizardContextWizard<MainContext>;
 }
 
 interface OrderQuery {
@@ -307,7 +315,7 @@ const initialize = (
 
       order.is_frozen = true;
       order.status = 'FROZEN';
-      order.action_by = ctx.admin._id;
+      order.action_by = ctx.admin._id.toString();
       await order.save();
 
       if (order.secret) await settleHoldInvoice(ctx, { secret: order.secret });
@@ -349,7 +357,7 @@ const initialize = (
 
         // We check if this dispute is from a community we validate that
         // the solver is running this command
-        if (dispute && dispute.solver_id != ctx.admin._id) {
+        if (dispute && dispute.solver_id != ctx.admin._id.toString()) {
           logger.debug(
             `cancelorder ${order._id}: @${ctx.admin.username} is not the solver of this dispute`
           );
@@ -367,7 +375,7 @@ const initialize = (
       logger.info(`order ${order._id}: cancelled by admin`);
 
       order.status = 'CANCELED_BY_ADMIN';
-      order.canceled_by = ctx.admin._id;
+      order.canceled_by = ctx.admin._id.toString();
       const buyer = await User.findOne({ _id: order.buyer_id });
       const seller = await User.findOne({ _id: order.seller_id });
       await order.save();

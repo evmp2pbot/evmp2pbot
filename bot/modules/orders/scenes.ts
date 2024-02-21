@@ -1,24 +1,59 @@
 /* eslint-disable @typescript-eslint/await-thenable */
-const { Scenes, Markup } = require('telegraf');
-const { logger } = require('../../../logger');
-const { getCurrency } = require('../../../util');
-const ordersActions = require('../../ordersActions');
-const {
+import { Scenes, Markup } from 'telegraf';
+import { logger } from '../../../logger';
+import { getCurrency } from '../../../util';
+import * as ordersActions from '../../ordersActions';
+import {
   publishBuyOrderMessage,
   publishSellOrderMessage,
-} = require('../../messages');
+} from '../../messages';
+import { MainContext } from '../../start';
+import { UserDocument } from '../../../models/user';
+import { CommunityDocument } from '../../../models/community';
+import { Community, User } from '../../../models';
+import { Message } from 'telegraf/types';
 const messages = require('./messages');
 
-const CREATE_ORDER = (exports.CREATE_ORDER = 'CREATE_ORDER_WIZARD');
+export const CREATE_ORDER = 'CREATE_ORDER_WIZARD';
 
 exports.middleware = () => {
   const stage = new Scenes.Stage([createOrder]);
   return stage.middleware();
 };
 
-const createOrder = (exports.createOrder = new Scenes.WizardScene(
+interface WizardState {
+  user: UserDocument;
+  community: CommunityDocument;
+  type: string;
+  currency: string;
+  fiatAmount: number[];
+  sats: string | number;
+  priceMargin: number;
+  method: string;
+
+  statusMessage?: Message.TextMessage;
+  currentStatusText?: string;
+  error?: string | null;
+  currencies?: string[];
+
+  handler: any;
+  updateUI: any;
+}
+
+const wizardState = (ctx: MainContext) => {
+  const ret = ctx.wizard.state as WizardState;
+  if (ret.user && !(ret.user instanceof User)) {
+    ret.user = User.hydrate(ret.user);
+  }
+  if (ret.community && !(ret.community instanceof Community)) {
+    ret.community = Community.hydrate(ret.community);
+  }
+  return ret;
+};
+
+export const createOrder = new Scenes.WizardScene<MainContext>(
   CREATE_ORDER,
-  async ctx => {
+  async (ctx: MainContext) => {
     try {
       const {
         user,
@@ -30,29 +65,29 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
         sats,
         priceMargin,
         method,
-      } = ctx.wizard.state;
+      } = wizardState(ctx);
       if (!statusMessage) {
         const { text } = messages.createOrderWizardStatus(
           ctx.i18n,
           ctx.wizard.state
         );
         const res = await ctx.reply(text);
-        ctx.wizard.state.currentStatusText = text;
-        ctx.wizard.state.statusMessage = res;
-        ctx.wizard.state.updateUI = async () => {
+        wizardState(ctx).currentStatusText = text;
+        wizardState(ctx).statusMessage = res;
+        wizardState(ctx).updateUI = async () => {
           try {
             const { text } = messages.createOrderWizardStatus(
               ctx.i18n,
               ctx.wizard.state
             );
-            if (ctx.wizard.state.currentStatusText === text) return;
+            if (wizardState(ctx).currentStatusText === text) return;
             await ctx.telegram.editMessageText(
               res.chat.id,
               res.message_id,
-              null,
+              undefined,
               text
             );
-            ctx.wizard.state.currentStatusText = text;
+            wizardState(ctx).currentStatusText = text;
           } catch (err) {
             logger.error(err);
           }
@@ -75,7 +110,7 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
         paymentMethod,
         status: 'PENDING',
         priceMargin,
-        community_id: community && community.id,
+        community_id: community && community._id.toString(),
       });
       if (order) {
         const publishFn =
@@ -90,49 +125,50 @@ const createOrder = (exports.createOrder = new Scenes.WizardScene(
   },
   async ctx => {
     try {
-      if (ctx.wizard.state.handler) {
-        const ret = await ctx.wizard.state.handler(ctx);
+      if (wizardState(ctx).handler) {
+        const ret = await wizardState(ctx).handler(ctx);
         if (!ret) return;
-        delete ctx.wizard.state.handler;
+        delete wizardState(ctx).handler;
       }
       await ctx.wizard.selectStep(0);
-      return ctx.wizard.steps[ctx.wizard.cursor](ctx);
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      return ctx.wizard['steps'][ctx.wizard.cursor](ctx);
     } catch (err) {
       logger.error(err);
       return ctx.scene.leave();
     }
   }
-));
+);
 
 const createOrderSteps = {
-  async currency(ctx) {
+  async currency(ctx: MainContext) {
     const prompt = await createOrderPrompts.currency(ctx);
     const deletePrompt = () =>
       ctx.telegram.deleteMessage(prompt.chat.id, prompt.message_id);
-    ctx.wizard.state.handler = async ctx => {
-      ctx.wizard.state.error = null;
-      if (!ctx.wizard.state.currencies) {
+    wizardState(ctx).handler = async (ctx: MainContext) => {
+      wizardState(ctx).error = null;
+      if (!wizardState(ctx).currencies) {
         await ctx.deleteMessage();
         if (ctx.message === undefined) return ctx.scene.leave();
-        const currency = getCurrency(ctx.message.text.toUpperCase());
+        const currency = getCurrency((ctx.message as any)?.text?.toUpperCase());
         if (!currency) {
-          ctx.wizard.state.error = ctx.i18n.t('invalid_currency');
-          return await ctx.wizard.state.updateUI();
+          wizardState(ctx).error = ctx.i18n.t('invalid_currency');
+          return await wizardState(ctx).updateUI();
         }
-        ctx.wizard.state.currency = currency.code;
-        await ctx.wizard.state.updateUI();
+        wizardState(ctx).currency = currency.code;
+        await wizardState(ctx).updateUI();
       } else {
         if (!ctx.callbackQuery) return;
-        const currency = ctx.callbackQuery.data;
-        ctx.wizard.state.currency = currency;
-        await ctx.wizard.state.updateUI();
+        const currency = (ctx.callbackQuery as any).data;
+        wizardState(ctx).currency = currency;
+        await wizardState(ctx).updateUI();
       }
       return deletePrompt();
     };
     return ctx.wizard.next();
   },
-  async fiatAmount(ctx) {
-    ctx.wizard.state.handler = async ctx => {
+  async fiatAmount(ctx: MainContext) {
+    wizardState(ctx).handler = async (ctx: MainContext) => {
       await createOrderHandlers.fiatAmount(ctx);
       return await ctx.telegram.deleteMessage(
         prompt.chat.id,
@@ -142,13 +178,13 @@ const createOrderSteps = {
     const prompt = await createOrderPrompts.fiatAmount(ctx);
     return ctx.wizard.next();
   },
-  async method(ctx) {
-    ctx.wizard.state.handler = async ctx => {
+  async method(ctx: MainContext) {
+    wizardState(ctx).handler = async (ctx: MainContext) => {
       if (ctx.message === undefined) return ctx.scene.leave();
-      const { text } = ctx.message;
+      const text = (ctx.message as any)?.text as string;
       if (!text) return;
-      ctx.wizard.state.method = text;
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).method = text;
+      await wizardState(ctx).updateUI();
       await ctx.deleteMessage();
       return await ctx.telegram.deleteMessage(
         prompt.chat.id,
@@ -158,25 +194,27 @@ const createOrderSteps = {
     const prompt = await ctx.reply(ctx.i18n.t('enter_payment_method'));
     return ctx.wizard.next();
   },
-  async priceMargin(ctx) {
+  async priceMargin(ctx: MainContext) {
     const prompt = await createOrderPrompts.priceMargin(ctx);
-    ctx.wizard.state.handler = async ctx => {
-      ctx.wizard.state.error = null;
+    wizardState(ctx).handler = async (ctx: MainContext) => {
+      wizardState(ctx).error = null;
       if (!ctx.callbackQuery) {
         if (ctx.message === undefined) return ctx.scene.leave();
-        const { text } = ctx.message;
+        const text = (ctx.message as any)?.text as string;
         if (!text) return;
         await ctx.deleteMessage();
-        if (isNaN(text)) {
-          ctx.wizard.state.error = ctx.i18n.t('not_number');
+        if (isNaN(parseInt(text, 10))) {
+          wizardState(ctx).error = ctx.i18n.t('not_number');
 
-          return await ctx.wizard.state.updateUI();
+          return await wizardState(ctx).updateUI();
         }
-        ctx.wizard.state.priceMargin = parseInt(text);
-        await ctx.wizard.state.updateUI();
+        wizardState(ctx).priceMargin = parseInt(text);
+        await wizardState(ctx).updateUI();
       } else {
-        ctx.wizard.state.priceMargin = parseInt(ctx.callbackQuery.data);
-        await ctx.wizard.state.updateUI();
+        wizardState(ctx).priceMargin = parseInt(
+          (ctx.callbackQuery as any).data
+        );
+        await wizardState(ctx).updateUI();
       }
       return await ctx.telegram.deleteMessage(
         prompt.chat.id,
@@ -185,9 +223,9 @@ const createOrderSteps = {
     };
     return ctx.wizard.next();
   },
-  async sats(ctx) {
+  async sats(ctx: MainContext) {
     const prompt = await createOrderPrompts.sats(ctx);
-    ctx.wizard.state.handler = async ctx => {
+    wizardState(ctx).handler = async (ctx: MainContext) => {
       const ret = await createOrderHandlers.sats(ctx);
       if (!ret) return;
       return await ctx.telegram.deleteMessage(
@@ -200,7 +238,7 @@ const createOrderSteps = {
 };
 
 const createOrderPrompts = {
-  async priceMargin(ctx) {
+  async priceMargin(ctx: MainContext) {
     const margin = ['-5', '-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4', '+5'];
     const buttons = margin.map(m => Markup.button.callback(m + '%', m));
     const rows = [];
@@ -222,8 +260,8 @@ const createOrderPrompts = {
       Markup.inlineKeyboard(rows)
     );
   },
-  async currency(ctx) {
-    const { currencies } = ctx.wizard.state;
+  async currency(ctx: MainContext) {
+    const { currencies } = wizardState(ctx);
     if (!currencies) return ctx.reply(ctx.i18n.t('enter_currency'));
     const buttons = currencies.map(currency =>
       Markup.button.callback(currency, currency)
@@ -239,11 +277,11 @@ const createOrderPrompts = {
       Markup.inlineKeyboard(rows)
     );
   },
-  async fiatAmount(ctx) {
-    const { currency } = ctx.wizard.state;
+  async fiatAmount(ctx: MainContext) {
+    const { currency } = wizardState(ctx);
     return ctx.reply(ctx.i18n.t('enter_currency_amount', { currency }));
   },
-  async sats(ctx) {
+  async sats(ctx: MainContext) {
     const button = Markup.button.callback(
       ctx.i18n.t('market_price'),
       'marketPrice'
@@ -256,63 +294,63 @@ const createOrderPrompts = {
 };
 
 const createOrderHandlers = {
-  async fiatAmount(ctx) {
+  async fiatAmount(ctx: MainContext) {
     if (ctx.message === undefined) return ctx.scene.leave();
-    ctx.wizard.state.error = null;
+    wizardState(ctx).error = null;
     await ctx.deleteMessage();
-    const inputs = ctx.message.text.split('-').map(Number);
+    const inputs = (ctx.message as any)?.text.split('-').map(Number);
     // ranges like [100, 0, 2] (originate from ranges like 100--2)
     // will make this conditional fail
     if (inputs.length > 2) {
-      ctx.wizard.state.error = ctx.i18n.t('must_be_number_or_range');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('must_be_number_or_range');
+      await wizardState(ctx).updateUI();
       return false;
     }
 
     if (inputs.length === 2 && inputs[1] <= inputs[0]) {
-      ctx.wizard.state.error = ctx.i18n.t('must_be_number_or_range');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('must_be_number_or_range');
+      await wizardState(ctx).updateUI();
       return false;
     }
     const notNumbers = inputs.filter(isNaN);
     if (notNumbers.length) {
-      ctx.wizard.state.error = ctx.i18n.t('not_number');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('not_number');
+      await wizardState(ctx).updateUI();
       return;
     }
-    const zeros = inputs.filter(n => n === 0);
+    const zeros = inputs.filter((n: number) => n === 0);
     if (zeros.length) {
-      ctx.wizard.state.error = ctx.i18n.t('not_zero');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('not_zero');
+      await wizardState(ctx).updateUI();
       return;
     }
-    if (inputs.length > 1) ctx.wizard.state.sats = 0;
+    if (inputs.length > 1) wizardState(ctx).sats = 0;
 
-    ctx.wizard.state.fiatAmount = inputs;
-    await ctx.wizard.state.updateUI();
+    wizardState(ctx).fiatAmount = inputs;
+    await wizardState(ctx).updateUI();
 
     return true;
   },
-  async sats(ctx) {
+  async sats(ctx: MainContext) {
     if (ctx.callbackQuery) {
-      ctx.wizard.state.sats = 0;
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).sats = 0;
+      await wizardState(ctx).updateUI();
       return true;
     }
-    const input = ctx.message.text;
+    const input = (ctx.message as any)?.text || 'DUMMY';
     await ctx.deleteMessage();
     if (isNaN(input)) {
-      ctx.wizard.state.error = ctx.i18n.t('not_number');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('not_number');
+      await wizardState(ctx).updateUI();
       return;
     }
     if (input < 0) {
-      ctx.wizard.state.error = ctx.i18n.t('not_negative');
-      await ctx.wizard.state.updateUI();
+      wizardState(ctx).error = ctx.i18n.t('not_negative');
+      await wizardState(ctx).updateUI();
       return;
     }
-    ctx.wizard.state.sats = parseInt(input);
-    await ctx.wizard.state.updateUI();
+    wizardState(ctx).sats = parseInt(input, 10);
+    await wizardState(ctx).updateUI();
     return true;
   },
 };

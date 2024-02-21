@@ -188,13 +188,13 @@ exports.attemptCommunitiesPendingPayments = async (
           community.orders_to_redeem = 0;
           await community.save();
           logger.info(
-            `Community ${community.id} withdrew ${pending.amount} sats, invoice with hash: ${payment.id} was paid`
+            `Community ${community._id} withdrew ${pending.amount} sats, invoice with hash: ${payment.id} was paid`
           );
           if (user) {
             await bot.telegram.sendMessage(
               user.tg_id,
               i18nCtx.t('pending_payment_success', {
-                id: community.id,
+                id: community._id,
                 amount: pending.amount,
                 paymentSecret: payment.secret,
               })

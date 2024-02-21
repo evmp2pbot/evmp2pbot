@@ -1,11 +1,11 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 interface UserReview {
   rating: number;
   reviewed_at: Date;
 }
 
-export interface UserDocument extends Document {
+export interface IUser {
   tg_id: string;
   username?: string;
   lang: string;
@@ -31,7 +31,7 @@ const UserReviewSchema = new Schema<UserReview>({
   reviewed_at: { type: Date, default: Date.now },
 });
 
-const UserSchema = new Schema<UserDocument>({
+const UserSchema = new Schema<IUser>({
   tg_id: { type: String, unique: true },
   username: { type: String },
   lang: { type: String, default: 'en' },
@@ -52,4 +52,6 @@ const UserSchema = new Schema<UserDocument>({
   default_community_id: { type: String },
 });
 
-export default mongoose.model<UserDocument>('User', UserSchema);
+const Model = mongoose.model<IUser>('User', UserSchema);
+export type UserDocument = ReturnType<(typeof Model)['hydrate']>;
+export default Model;

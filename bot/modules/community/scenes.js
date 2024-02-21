@@ -872,7 +872,7 @@ exports.addEarningsInvoiceWizard = new Scenes.WizardScene(
         return await ctx.reply(ctx.i18n.t('invoice_already_being_paid'));
 
       const user = await User.findById(community.creator_id);
-      logger.debug(`Creating pending payment for community ${community.id}`);
+      logger.debug(`Creating pending payment for community ${community._id}`);
       const pp = new PendingPayment({
         amount: community.earnings,
         payment_request: lnInvoice,

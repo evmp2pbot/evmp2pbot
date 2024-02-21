@@ -16,7 +16,7 @@ const deleteCommunity = async bot => {
       const orders = await Order.count({
         created_at: { $gte: time },
         status: 'SUCCESS',
-        community_id: community.id,
+        community_id: community._id,
       });
       if (orders == 0) {
         logger.info(

@@ -13,7 +13,7 @@ import { logger } from '../logger';
 
 import * as OrderEvents from './modules/events/orders';
 import { IOrder } from '../models/order';
-import { UserDocument } from '../models/user';
+import { IUser, UserDocument } from '../models/user';
 import { MainContext } from './start';
 import { IFiat } from '../util/fiatModel';
 import { I18nContext } from '@grammyjs/i18n';
@@ -42,10 +42,10 @@ const createOrder = async (
     paymentMethod: string;
     status: string;
     priceMargin: number;
-    range_parent_id: unknown;
-    tgChatId: unknown;
-    tgOrderMessage: unknown;
-    community_id: string;
+    range_parent_id?: unknown;
+    tgChatId?: unknown;
+    tgOrderMessage?: unknown;
+    community_id?: string;
   }
 ) => {
   try {
@@ -153,7 +153,7 @@ const buildDescription = (
     priceFromAPI,
     currency,
   }: {
-    user: UserDocument;
+    user: IUser;
     type: string;
     amount: number;
     fiatAmount: number[];
