@@ -62,6 +62,7 @@ import {
   WizardContextWizard,
   WizardSessionData,
 } from 'telegraf/scenes';
+import { getI18nGlobalContext } from '../util/i18n';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -155,6 +156,7 @@ const initialize = (
     defaultLanguageOnMissing: true, // implies allowMissing = true
     directory: 'locales',
     useSession: true,
+    templateData: getI18nGlobalContext(),
   });
 
   const bot = new Telegraf<MainContext>(botToken, options);

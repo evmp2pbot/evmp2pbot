@@ -8,6 +8,7 @@ import { IFiat } from './fiatModel';
 import { Telegram } from 'telegraf';
 import { IOrder } from '../models/order';
 import { ICommunity } from '../models/community';
+import { getI18nGlobalContext } from './i18n';
 
 export declare class I18nFix extends I18n {
   createContext(
@@ -372,6 +373,7 @@ export const getUserI18nContext = async (user: {
     ...{ locale: language },
     defaultLanguageOnMissing: true,
     directory: 'locales',
+    templateData: getI18nGlobalContext(),
   }) as I18nFix;
 
   return i18n.createContext(user.lang);

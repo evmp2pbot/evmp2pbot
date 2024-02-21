@@ -671,8 +671,8 @@ const publishBuyOrderMessage = async (
   messageToUser: boolean
 ) => {
   try {
-    let publishMessage = `⚡️🍊⚡️\n${order.description}\n`;
-    publishMessage += `:${order._id}:`;
+    let publishMessage = `${order.description}\n`;
+    publishMessage += `ID: :${order._id}:`;
 
     const channel = await getOrderChannel(order);
     if (!channel) {
@@ -711,8 +711,8 @@ const publishSellOrderMessage = async (
   messageToUser?: boolean
 ) => {
   try {
-    let publishMessage = `⚡️🍊⚡️\n${order.description}\n`;
-    publishMessage += `:${order._id}:`;
+    let publishMessage = `${order.description}\n`;
+    publishMessage += `ID: :${order._id}:`;
     const channel = await getOrderChannel(order);
     if (!channel) {
       logger.error(`Channel not found for order ${order._id}`);

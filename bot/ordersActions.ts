@@ -200,6 +200,7 @@ const buildDescription = (
         i18n.t('rate') + `: ${process.env.FIAT_RATE_NAME} ${priceMarginText}\n`;
     } else {
       const exchangePrice = 1; // getBtcExchangePrice(fiatAmount[0], amount);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       tasaText =
         i18n.t('price') + `: ${numberFormat(fiatCode, exchangePrice)}\n`;
     }
@@ -219,7 +220,7 @@ const buildDescription = (
     description += i18n.t('user_age', { days: ageInDays }) + `\n`;
     description += volumeTraded;
     description += hashtag;
-    description += tasaText;
+    // description += tasaText;
     description += rateText;
 
     return description;

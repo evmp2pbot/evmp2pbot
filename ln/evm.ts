@@ -2,6 +2,7 @@ import { logger } from '../logger';
 import { IOrder } from '../models/order';
 import { ensureEnv, lazyMemo } from '../util';
 import { Contract, EventLog, JsonRpcProvider, ethers } from 'ethers';
+import { GLOBAL_TRANSLATION_CONTEXT_GETTERS } from '../util/i18n';
 
 const erc20 = [
   // Read-Only Functions
@@ -42,13 +43,13 @@ class TransferMonitor {
 
   #start() {
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    this.contract.on('Transfer', this.eventHandler);
+    this.contract.on('Transfer', this.eventHandler).catch(() => {});
     logger.debug('TransferMonitor: Starting');
   }
 
   #stop() {
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    this.contract.off('Transfer', this.eventHandler);
+    this.contract.off('Transfer', this.eventHandler).catch(() => {});
     logger.debug('TransferMonitor: Stopping');
   }
 
@@ -61,6 +62,7 @@ class TransferMonitor {
   }
 }
 export const TOKEN_CONTRACT = ensureEnv('TOKEN_CONTRACT');
+let TOKEN_SYMBOL = '';
 const EVM_PROVIDER_URL = ensureEnv('EVM_PROVIDER_URL');
 const provider = new JsonRpcProvider(EVM_PROVIDER_URL, undefined, {
   pollingInterval: 30000,
@@ -71,6 +73,20 @@ const getNumDecimals = lazyMemo(
   Number.MAX_SAFE_INTEGER,
   () => contract.decimals()
 );
+function getTokenSymbol() {
+  if (!TOKEN_SYMBOL) {
+    TOKEN_SYMBOL = 'TOKEN';
+    contract
+      .symbol()
+      .then(result => (TOKEN_SYMBOL = result))
+      .catch(e => logger.error(`Failed to get token symbol: ${e?.toString()}`));
+  }
+  return TOKEN_SYMBOL;
+}
+GLOBAL_TRANSLATION_CONTEXT_GETTERS.push(() => ({
+  tokenName: () => getTokenSymbol(),
+}));
+setTimeout(getTokenSymbol, 15000);
 export const transferMonitor = new TransferMonitor(contract);
 export const getOrderWei = async (order: IOrder) => {
   return ethers.parseUnits(order.amount.toString(), await getNumDecimals());
