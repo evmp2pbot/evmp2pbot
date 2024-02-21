@@ -54,10 +54,9 @@ jobs:
         env:
           REPO_URL_FULL: ${{ steps.vars.outputs.repo_url_full }}
         run: |-
-          set -x
-          # Do not use `gcloud compute instances update-container` here, as it causes long downtime
+          # Do not use `gcloud compute instances update-container` here, as it causes much longer downtime
           ZONE="$(gcloud compute instances list --filter="name=$GCP_VM_NAME" --format="value(zone.basename())")"
           CONTAINER_DECL="$(gcloud compute instances describe evmp2pbot --zone "$ZONE" --format="value(metadata.items.gce-container-declaration)")"
           CONTAINER_DECL_NEW="$(echo "$CONTAINER_DECL" | sed 's#image:.*'#"image: $REPO_URL_FULL#")"
           gcloud compute instances add-metadata "$GCP_VM_NAME" --zone "$ZONE" --metadata "gce-container-declaration=$CONTAINER_DECL_NEW"
-          gcloud compute ssh "$GCP_VM_NAME" --zone "$ZONE" --ssh-key-expire-after=2m --force-key-file-overwrite --command='/usr/share/gce-containers/konlet-startup'
+          gcloud compute ssh "$GCP_VM_NAME" --zone "$ZONE" --ssh-key-expire-after=5m --force-key-file-overwrite --command='/usr/share/gce-containers/konlet-startup'
