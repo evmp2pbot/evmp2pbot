@@ -191,7 +191,10 @@ const createOrderSteps = {
         prompt.message_id
       );
     };
-    const prompt = await ctx.reply(ctx.i18n.t('enter_payment_method'));
+    const { currency, fiatAmount } = wizardState(ctx);
+    const prompt = await ctx.reply(
+      ctx.i18n.t('enter_payment_method', { currency, fiatAmount })
+    );
     return ctx.wizard.next();
   },
   async priceMargin(ctx: MainContext) {
@@ -282,13 +285,16 @@ const createOrderPrompts = {
     return ctx.reply(ctx.i18n.t('enter_currency_amount', { currency }));
   },
   async sats(ctx: MainContext) {
+    /*
     const button = Markup.button.callback(
       ctx.i18n.t('market_price'),
       'marketPrice'
     );
+    */
+    const { currency, fiatAmount } = wizardState(ctx);
     return ctx.reply(
-      ctx.i18n.t('enter_sats_amount'),
-      Markup.inlineKeyboard([button])
+      ctx.i18n.t('enter_sats_amount', { fiatAmount, currency })
+      // Markup.inlineKeyboard([button])
     );
   },
 };

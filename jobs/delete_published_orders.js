@@ -20,7 +20,7 @@ const deleteOrders = async bot => {
       );
       const orderCloned = order.toObject();
       // We remove the order from the database first, then we remove the message from the channel
-      await order.remove();
+      await order.deleteOne();
       // We delete the messages related to that order from the channel
       await deleteOrderFromChannel(orderCloned, bot.telegram);
     }

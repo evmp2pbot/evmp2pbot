@@ -8,6 +8,7 @@ import {
   getFee,
   getUserAge,
   getStars,
+  beginningCase,
 } from '../util';
 import { logger } from '../logger';
 
@@ -166,9 +167,11 @@ const buildDescription = (
 ) => {
   try {
     const action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
-    const hashtag = `#${type.toUpperCase()}${fiatCode}\n`;
+    // const hashtag = `#${type.toUpperCase()}${fiatCode}\n`;
     const paymentAction =
       type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
+    let publisher = type === 'sell' ? i18n.t('seller') : i18n.t('buyer');
+    publisher = beginningCase(publisher);
     const trades = user.trades_completed;
     const volume = numberFormat(fiatCode, user.volume_traded);
     const totalRating = user.total_rating;
@@ -189,8 +192,7 @@ const buildDescription = (
 
     let currencyString = `${fiatCode} ${fiatAmountString}`;
 
-    if (currency)
-      currencyString = `${fiatAmountString} ${currency.code} ${currency.emoji}`;
+    if (currency) currencyString = `${fiatAmountString} ${currency.code}`;
 
     let amountText = `${numberFormat(fiatCode, amount)} `;
     let tasaText = '';
@@ -213,13 +215,15 @@ const buildDescription = (
     const ageInDays = getUserAge(user);
 
     let description =
-      `${username}${action} ${amountText}` + i18n.t('sats') + `\n`;
+      `${username}${action} ${amountText}$` + i18n.t('sats') + `\n`;
     description += i18n.t('for') + ` ${currencyString}\n`;
     description += `${paymentAction} ` + i18n.t('by') + ` ${paymentMethod}\n`;
+    description += '---\n';
+    description += `${publisher}:\n`;
     description += i18n.t('has_successful_trades', { trades }) + `\n`;
     description += i18n.t('user_age', { days: ageInDays }) + `\n`;
     description += volumeTraded;
-    description += hashtag;
+    // description += hashtag;
     // description += tasaText;
     description += rateText;
 

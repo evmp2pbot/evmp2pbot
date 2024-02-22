@@ -48,15 +48,16 @@ exports.createOrderWizardStatus = (i18n, state) => {
   const action = type === 'sell' ? i18n.t('selling') : i18n.t('buying');
   const sats = state.sats ? state.sats + ' ' : '';
   const paymentAction =
-    type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay');
+    type === 'sell' ? i18n.t('receive_payment') : i18n.t('pay_via');
   const fiatAmount =
     undefined === state.fiatAmount ? '__' : state.fiatAmount.join('-');
   const currency = state.currency || '__';
 
   const text = [
-    `${action} ${sats}${i18n.t('sats')}`,
+    i18n.t('wizard_header', { action: i18n.t(type) }),
+    `${action} ${sats}$${i18n.t('sats')}`,
     `${i18n.t('for')} ${fiatAmount} ${currency}.`,
-    `${paymentAction} ${i18n.t('by')} ${state.method || '__'}`,
+    `${paymentAction} ${state.method || '__'}`,
     priceMargin
       ? `${i18n.t('rate')}: ${process.env.FIAT_RATE_NAME} ${priceMargin}%`
       : ``,

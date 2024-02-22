@@ -85,6 +85,7 @@ function getTokenSymbol() {
 }
 GLOBAL_TRANSLATION_CONTEXT_GETTERS.push(() => ({
   tokenName: () => getTokenSymbol(),
+  chainName: process.env.DISPLAY_CHAIN_NAME,
 }));
 setTimeout(getTokenSymbol, 15000);
 export const transferMonitor = new TransferMonitor(contract);

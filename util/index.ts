@@ -568,3 +568,6 @@ export function lazyMemo<T>(
     return value;
   };
 }
+
+export const beginningCase = (s: string) =>
+  s.slice(0, 1).toUpperCase() + s.slice(1);

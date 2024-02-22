@@ -495,7 +495,7 @@ const beginTakeSellMessage = async (
       time.minutes > 0 ? ' ' + time.minutes + ' ' + ctx.i18n.t('minutes') : '';
     await bot.telegram.sendMessage(
       buyer.tg_id,
-      ctx.i18n.t('you_took_someone_order', { expirationTime }),
+      ctx.i18n.t('you_took_someone_order', { expirationTime, order }),
       { parse_mode: 'MarkdownV2' }
     );
     await bot.telegram.sendMessage(buyer.tg_id, order._id.toString(), {
@@ -671,8 +671,9 @@ const publishBuyOrderMessage = async (
   messageToUser: boolean
 ) => {
   try {
-    let publishMessage = `${order.description}\n`;
-    publishMessage += `ID: :${order._id}:`;
+    let publishMessage = `${i18n.t('offer_header', { id: order._id })}\n${
+      order.description
+    }`;
 
     const channel = await getOrderChannel(order);
     if (!channel) {
@@ -683,7 +684,16 @@ const publishBuyOrderMessage = async (
     const message1 = await bot.telegram.sendMessage(channel, publishMessage, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: i18n.t('sell_sats'), callback_data: 'takebuy' }],
+          [
+            {
+              text: i18n.t('sell_sats', {
+                amount: order.amount,
+                fiatAmount: order.fiat_amount,
+                currency: order.fiat_code,
+              }),
+              callback_data: 'takebuy',
+            },
+          ],
         ],
       },
     });
@@ -711,8 +721,9 @@ const publishSellOrderMessage = async (
   messageToUser?: boolean
 ) => {
   try {
-    let publishMessage = `${order.description}\n`;
-    publishMessage += `ID: :${order._id}:`;
+    let publishMessage = `${i18n.t('offer_header', { id: order._id })}\n${
+      order.description
+    }`;
     const channel = await getOrderChannel(order);
     if (!channel) {
       logger.error(`Channel not found for order ${order._id}`);
@@ -722,7 +733,16 @@ const publishSellOrderMessage = async (
     const message1 = await ctx.telegram.sendMessage(channel, publishMessage, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: i18n.t('buy_sats'), callback_data: 'takesell' }],
+          [
+            {
+              text: i18n.t('buy_sats', {
+                amount: order.amount,
+                fiatAmount: order.fiat_amount,
+                currency: order.fiat_code,
+              }),
+              callback_data: 'takesell',
+            },
+          ],
         ],
       },
     });

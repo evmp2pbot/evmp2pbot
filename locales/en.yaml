@@ -58,23 +58,26 @@ invoice_payment_request: >
 
   Please pay this invoice to start up your selling process, it will expire in ${expirationTime} minutes
 pending_sell: >
-  📝 Your offer has been published in the ${channel} channel
+  Your offer is now active in the ${channel} channel.
+
+  Please wait until an interested user picks up the offer.
+
+  Otherwise it will expire in ${orderExpirationWindow} hours.
 
 
-  You have to wait until another user picks your order, it will be available for ${orderExpirationWindow} hours in the channel
-
-
-  You can cancel this order before another user picks it up by executing the command 👇
+  You can cancel this order before a user picks it up by executing the command below 👇
 cancel_order_cmd: |
   /cancel ${orderId}
 pending_buy: >
-  📝 You offer to buy ${tokenName()} is active in the ${channel} channel.
+  Your offer is now active in the ${channel} channel.
+
+  Please wait until an interested user picks up the offer.
+
+  Otherwise it will expire in ${orderExpirationWindow} hours.
 
 
-  You need to wait until another user picks up the order, this order will expire in ${orderExpirationWindow} hours.
-
-
-  You can cancel this order before another user picks it up by executing the command 👇
+  You can cancel this order before a user picks it up by executing the command below 👇
+offer_header: 'Offer (:${id}:):'
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric
 sats_amount: ${tokenName()} amount
@@ -199,9 +202,9 @@ buyer_took_your_order: >
 
 
   Once you verify you have received the full amount, you have to release the ${tokenName()}
-waiting_seller_to_pay: "I have sent a payment request to the seller so he sends
+waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends
   your ${tokenName()} for the order ID #${orderId}, as soon as payment is made I
-  will put you both in touch"
+  will put you both in touch'
 received_less_than_expected: I received less than ${amount} ${tokenName()} for
   order ${orderId} in the escrow wallet address, please send ${diff} more
   ${tokenName()} to continue.
@@ -210,12 +213,12 @@ sell_success: Your ${tokenName()} sale has been completed after confirming the
 funds_released: 🕐 @${sellerUsername} already released the ${tokenName()},
   expect your invoice to be paid any time, remember your wallet needs to be
   online to receive through Lightning Network.
-rate_counterpart: "Please qualify your counterparty:"
+rate_counterpart: 'Please qualify your counterparty:'
 cant_process_order: This order cannot be processed, please check the ID is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
 no_id_related: You do not have any order associated with this ID.
-sell_sats: Sell ${tokenName()}
-buy_sats: Buy ${tokenName()}
+sell_sats: Sell ${tokenName()} for ${fiatAmount} ${currency}
+buy_sats: Buy ${tokenName()} for ${fiatAmount} ${currency}
 order_detail: |
   ID: `${order._id}`
 
@@ -268,16 +271,16 @@ dispute_started_channel: >
   @${counterPartyUser.username} has been involved in ${counterPartyUser.disputes} disputes
 you_started_dispute_to_buyer: 🥴 You have started a dispute for your buy order,
   we will contact you and your counterparty to sort it out.
-buyer_started_dispute_to_seller: "🥴 The buyer has initiated a dispute for your
+buyer_started_dispute_to_seller: '🥴 The buyer has initiated a dispute for your
   order with ID: ${orderId}, we will contact you and your counterparty to
-  resolve it."
+  resolve it.'
 you_started_dispute_to_seller: 🥴 You have started a dispute for your sell
   order, we will contact you and your counterparty to sort it out.
-seller_started_dispute_to_buyer: "🥴 The Seller has initiated a dispute for your
+seller_started_dispute_to_buyer: '🥴 The Seller has initiated a dispute for your
   order with ID: ${orderId}, we will contact you and your counterparty to
-  resolve it."
-must_be_valid_currency: "Fiat_code must be a valid code, for example: USD, EUR.
-  Check the full list with the command /listcurrencies"
+  resolve it.'
+must_be_valid_currency: 'Fiat_code must be a valid code, for example: USD, EUR.
+  Check the full list with the command /listcurrencies'
 must_be_number_or_range: Fiat_amount must be a number or numeric range in
   the  <minimum>-<maximum> format
 invalid_lightning_address: Invalid lightning address
@@ -397,22 +400,22 @@ invoice_already_being_paid: You have alreday send an invoice for this order and
   I am trying to pay it in this very right moment.
 lightning_address_saved: Lightning address has been saved
 cancel_error: This order cannot be cancelled at this moment
-cancel_success: "You have cancelled the order ID: ${orderId}!"
+cancel_success: 'You have cancelled the order ID: ${orderId}!'
 cancelall_success: You have cancelled all your published orders!
-order_cancelled_by_admin: "Admin has cancelled the order ID: ${orderId}!"
-order_completed: "You have completed the order ID: ${orderId}!"
-order_completed_by_admin: "Admin has completed the order ID: ${orderId}!"
-order_cancelled_by_counterparty: "Your counterparty cancelled the order ID: ${orderId}!"
+order_cancelled_by_admin: 'Admin has cancelled the order ID: ${orderId}!'
+order_completed: 'You have completed the order ID: ${orderId}!'
+order_completed_by_admin: 'Admin has completed the order ID: ${orderId}!'
+order_cancelled_by_counterparty: 'Your counterparty cancelled the order ID: ${orderId}!'
 have_to_wait_for_counterpart: 🕒 You have already made this operation, you must
   wait for the other party to take action
-ok_cooperativecancel: "👍 Counterparty agreed and the order ID: ${orderId} has been cancelled"
+ok_cooperativecancel: '👍 Counterparty agreed and the order ID: ${orderId} has been cancelled'
 refund_cooperativecancel: 💰 You have received a refund of your lightning
   payment, there is no further action to make
-init_cooperativecancel: "🕒 You have started the cancellation of the order ID:
-  ${orderId}, your counterparty must agree on the cancellation too."
-counterparty_wants_cooperativecancel: "😳 Your counterparty wants to cancel
+init_cooperativecancel: '🕒 You have started the cancellation of the order ID:
+  ${orderId}, your counterparty must agree on the cancellation too.'
+counterparty_wants_cooperativecancel: '😳 Your counterparty wants to cancel
   order ID: ${orderId}. If you agree on such cancellation, please execute the
-  following command 👇"
+  following command 👇'
 invoice_payment_failed: ⛔ I tried to send you the ${tokenName()} but the payment
   of your invoice failed, I will try ${attempts} more times in
   ${pendingPaymentWindow} minutes window, please check your node/wallet is
@@ -500,7 +503,7 @@ wizard_community_wrong_permissions: You do not have administrator permits for th
 wizard_community_you_are_not_admin: You are not admin on ${channel}.
 wizard_community_duplicated_name: The name you entered is already in use by
   another community, try again with a different one.
-wizard_to_exit: /exit to exit the wizard.
+wizard_to_exit: '(/exit to abort at any step)'
 wizard_exit: You have exited wizard mode, you can now write commands
 wizard_add_fiat_amount: |
   Please indicate the amount of ${currency} you want to ${action}.
@@ -508,7 +511,7 @@ wizard_add_fiat_amount: |
   Remember it must be only numbers and be between ${minAmount} and ${maxAmount}:
 wizard_add_fiat_wrong_amount: Invalid amount, input must be between ${minAmount}
   and ${maxAmount}, it must be only numbers.
-wizard_add_fiat_correct_amount: "Amount: ${currency} ${fiatAmount}."
+wizard_add_fiat_correct_amount: 'Amount: ${currency} ${fiatAmount}.'
 order_expired: This order has expired!
 cant_add_invoice: You can no longer add an invoice to this order!
 expired_order: |
@@ -538,21 +541,21 @@ expired_order_to_seller: >
 
 
   If you need help, you can write to the group ${helpGroup}
-didnt_add_invoice: "🤨 You have not sent the invoice to receive ${tokenName()}
-  for the order ID: ${orderId}"
-buyer_havent_add_invoice: "😔 Buyer has not sent me the invoice to receive the
+didnt_add_invoice: '🤨 You have not sent the invoice to receive ${tokenName()}
+  for the order ID: ${orderId}'
+buyer_havent_add_invoice: '😔 Buyer has not sent me the invoice to receive the
   ${tokenName()} for your order ID: ${orderId}, your ${tokenName()} were sent
-  back to you"
-buyer_havent_add_invoice_to_admin_channel: "Buyer @${username} took the order
+  back to you'
+buyer_havent_add_invoice_to_admin_channel: 'Buyer @${username} took the order
   ID: ${orderId} but has not sent the invoice where to receive ${tokenName()},
-  time has expired, the order has being republished."
-havent_paid_invoice: "🤨 You have not paid the invoice to sell ${tokenName()}
-  for the order ID: ${orderId}"
-seller_havent_paid_invoice: "😔 Seller has not paid the invoice for your
-  purchase ID: ${orderId}, the operation was cancelled."
-seller_havent_add_invoice_to_admin_channel: "Seller @${username} has not paid
+  time has expired, the order has being republished.'
+havent_paid_invoice: '🤨 You have not paid the invoice to sell ${tokenName()}
+  for the order ID: ${orderId}'
+seller_havent_paid_invoice: '😔 Seller has not paid the invoice for your
+  purchase ID: ${orderId}, the operation was cancelled.'
+seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not paid
   the invoice of order ID: ${orderId} time lapse ended and the order has been
-  published again."
+  published again.'
 pending_payment_success_to_admin: >
   User @${username} had a pending invoice, the payment for buying order ID:
   ${orderId} for ${amount} ${tokenName()}, was finally executed after
@@ -577,17 +580,23 @@ pending_payment_failed_to_admin: >
 
 
   Payment attempts: ${attempts}
-selling: Selling
+wizard_header: >
+  Post an offer to ${action} $${tokenName()} Tokens on ${chainName}:
+
+
+  Preview:
+
 buying: Buying
-receive_payment: Receive payment
+selling: Selling
+receive_payment: Receive payment via
 pay: Pay
+pay_via: Pay via
 is: is
-trading_volume: "Trading volume: ${volume} ${tokenName()}"
-${tokenName()}: ${tokenName()}
+trading_volume: 'Trading volume: ${volume} ${tokenName()}'
 by: by
 rate: Rate
-has_successful_trades: Has ${trades} successful trades
-user_age: Has been using the bot for ${pluralize(days, 'day', 'days')}
+has_successful_trades: ${trades} successful trades
+user_age: ${pluralize(days, 'day', 'days')} using the bot
 price: Price
 for: For
 generic_error: An error occurred
@@ -630,14 +639,33 @@ new_dispute: ⚠️⚠️⚠️ A user has started a dispute, press the button t
 take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation, you need to have a default community
-enter_sats_amount: Enter ${tokenName()} amount, enter only numbers.
+enter_sats_amount: >
+  Step 3 of 4:
+
+  How many $${tokenName()} tokens would you like to receive for ${fiatAmount} ${currency}.
+
+  Only full numbers and no fractions please.
 market_price: Market price
-enter_currency: "Enter a currency by your code, eg: USD"
+enter_currency: >
+  Step 1 of 4:
+
+  Enter a currency code e.g.: USD
 choose_currency: Choose a currency
-enter_currency_amount: Enter the amount of ${currency}, enter only numbers.
+enter_currency_amount: >
+  Step 2 of 4:
+
+  Enter the amount of ${currency} you want to pay.
+
+  Only full numbers and no fractions please.
+
 enter_premium_discount: Enter the premium(+) or discount(-) to apply to the market price.
 no_premium_or_discount: No premium or discount
-enter_payment_method: Enter the payment method
+enter_payment_method: >
+  Step 4 of 4:
+
+  How will you pay the ${fiatAmount} ${currency}?
+
+  (PayPal, Sepa Wire, SWIFT Wire, Venmo,...)
 invalid_currency: Invalid currency
 not_number: It must be a number
 not_zero: Cannot be 0 (zero)
@@ -658,9 +686,9 @@ max_allowed: The maximum allowed is ${max}
 dispute_channel: Dispute channel
 not_wizard: You are not in wizard mode at the moment, if you have doubts you can type /help
 wizard_help: You are in wizard mode, if you need to go back to command mode run /exit
-hold_invoice_memo: "@${botName} - Escrow amount Order #${orderId}: SELL BTC for
+hold_invoice_memo: '@${botName} - Escrow amount Order #${orderId}: SELL BTC for
   ${fiatCode} ${fiatAmount} - It WILL FREEZE IN YOUR WALLET. It will release
-  once you run /release. It will return if buyer does not confirm the payment"
+  once you run /release. It will return if buyer does not confirm the payment'
 tap_button: Select an order to perform the operation
 tap_release: Select the order to release the funds, once you press the button,
   the operation cannot be reversed.
@@ -680,8 +708,8 @@ current_earnings: |
 
   Community Earnings: ${earnings} ${tokenName()}
 you_dont_have_communities: You have no communities created
-users_added: "You have added: ${users}"
-users_not_added: "Could not add to: ${users}; please make sure these users have started the bot"
+users_added: 'You have added: ${users}'
+users_not_added: 'Could not add to: ${users}; please make sure these users have started the bot'
 delete_community: Delete community
 are_you_sure: Are you sure?
 no_permission: You do not have permission to perform this operation
