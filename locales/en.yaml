@@ -49,14 +49,20 @@ non_handle_error: 👤 To use this bot, you need to activate your Telegram
   Username. To activate it open the hamburger menu on the top left and select
   settings -> edit profile -> username
 invoice_payment_request: >
-  Somebody wants to buy you ${order.amount} ${tokenName()} for ${currency}
+  An user wants to buy ${order.amount} $${tokenName()} for ${currency}
   ${order.fiat_amount}.
 
 
-  Buyer Reputation: ${rate}, days using the bot: ${days}
+  Buyer:
+
+  ${trades} successful trades
+
+  ${pluralize(days, 'day', 'days')} using the bot
 
 
-  Please pay this invoice to start up your selling process, it will expire in ${expirationTime} minutes
+  Please deposit ${order.amount} $${tokenName()} into the following escrow account.
+
+  This order will expire in ${expirationTime} minutes.
 pending_sell: >
   Your offer is now active in the ${channel} channel.
 
@@ -139,10 +145,11 @@ order_invalid_type: This ${type} order is invalid
 order_already_taken: This order has already been taken by another user.
 invalid_data: You have sent invalid data, try again.
 begin_take_buy: >
-  🤖 Press Continue to take the offer, if you press Cancel, you will be released
+  Press Continue to take the offer, if you press Cancel, you will be released
   from the order and it will be republished. You have ${expirationTime} minutes
   before this order expires. 👇
 continue: Continue
+accept: Accept
 cancel: Cancel
 pay_invoice: Please pay this invoice of ${amount} ${tokenName()} for ${currency}
   ${fiatAmount} to start the operation.
@@ -155,7 +162,7 @@ payment_received: >
 
   Wait a bit. The collateral will be returned to you if the buyer does not cooperate.
 someone_took_your_order: >
-  🤖 Someone took your order and already sent me the ${tokenName()}, please use
+  Someone took your order and already sent me the ${tokenName()}, please use
   a fiat payment processor that allows you to send the money immediately and in
   which there is no risk of freezing funds.
 
@@ -168,26 +175,33 @@ someone_took_your_order: >
 
   If you agree with the above, press the button to continue 👇
 you_took_someone_order: >
-  🤖 You took this selling order, please use a fiat payment processor that
-  allows you to send the money immediately and in which there is no risk of
-  freezing funds\\.
+  You took the sell order ${order._id}
 
 
-  *If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the ${tokenName()} will return to the seller, putting the buyer at risk and I cannot force the seller to send the ${tokenName()} again\\.*
+  Selling ${order.amount} $${tokenName()}
+
+  For ${order.fiat_amount} ${order.fiat_code}
+
+  Pay via ${order.payment_method}
 
 
-  If you agree with the above, press the button to continue 👇
+  Please use a fiat payment processor that allows you to send *${order.fiat_amount} ${order.fiat_code}* immediately and in which there is no risk of freezing funds\\.
+
+
+  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime} hours, the *${order.amount}* $${tokenName()} will return to the seller, putting the buyer at risk and I cannot force the seller to send the ${tokenName()} again\\.
+
+
+  If you agree with the above, press the Accept button to continue 👇
 get_in_touch_with_seller: >
-  🤖 Order ID: #${orderId}
+  Order ID: #${orderId}
 
 
-  Get in touch with the seller, user @${sellerUsername} to get the details on how to send the money, you must send ${currency} ${fiatAmount} using ${paymentMethod}.
+  Get in touch with the seller, user @${sellerUsername} to get the details on how to send the ${fiatAmount} ${currency} using ${paymentMethod}.
 
-
-  Once you send the money, please let me know with the command 👇
+  Once you send the money, please confirm here by typing this command 👇
 fiatsent_order_cmd: /fiatsent
 get_in_touch_with_buyer: >
-  🤖 Order ID: #${orderId}
+  Order ID: #${orderId}
 
 
   Get in touch with @${buyerUsername} to give information on how to send you ${currency} ${fiatAmount} through ${paymentMethod}. Do not release those ${tokenName()} until you verify that the buyer paid you the fiat.
@@ -195,25 +209,27 @@ get_in_touch_with_buyer: >
 
   Once you confirm the reception of the money, you must unlock the ${tokenName()}.
 buyer_took_your_order: >
-  🤖 Order ID: #${orderId}
+  Order ID: #${orderId}
 
 
-  @${buyerUsername} has taken your order and wants to buy your ${tokenName()}. Get in touch and tell him how to send you ${currency} ${fiatAmount} through ${paymentMethod}.
+  @${buyerUsername} has picked up your order and wants to buy ${order.amount} $${tokenName()}.
 
+  Get in touch via DM and share instructions on how to send you ${currency} ${fiatAmount} through ${paymentMethod}.
 
-  Once you verify you have received the full amount, you have to release the ${tokenName()}
+  Once you received the full amount, you have to release the ${order.amount} $${tokenName()} from the escrow.
 waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends
   your ${tokenName()} for the order ID #${orderId}, as soon as payment is made I
   will put you both in touch'
 received_less_than_expected: I received less than ${amount} ${tokenName()} for
   order ${orderId} in the escrow wallet address, please send ${diff} more
   ${tokenName()} to continue.
-sell_success: Your ${tokenName()} sale has been completed after confirming the
-  payment from @${buyerUsername} ⚡️🍊⚡️
-funds_released: 🕐 @${sellerUsername} already released the ${tokenName()},
-  expect your invoice to be paid any time, remember your wallet needs to be
-  online to receive through Lightning Network.
-rate_counterpart: 'Please qualify your counterparty:'
+sell_success: >
+  Your exchange has been completed. 
+
+  Please qualify @${buyerUsername}
+funds_released: >
+  @${sellerUsername} already released the ${order.amount} $${tokenName()} from escrow. You can expect the tokens in your wallet any minute now.
+rate_counterpart: '-👇-'
 cant_process_order: This order cannot be processed, please check the ID is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
 no_id_related: You do not have any order associated with this ID.
@@ -362,14 +378,14 @@ help: >
 must_be_gt_or_eq: ${fieldName} Must be greater or equal to ${qty}
 you_have_been_banned: You have been banned!
 run_start_first: I haven't seen you before, please run /start first.
-I_told_seller_you_sent_fiat: 🤖 I told @${sellerUsername} that you have sent the
-  fiat money. Once the seller confirms the money was received, the
-  ${tokenName()} should be sent to you.
-buyer_told_me_that_sent_fiat: 🤖 @${buyerUsername} has informed that he already
-  sent you the fiat money. Once you confirm the reception, please release funds.
-  You will not be able to create another order until you release funds.
+I_told_seller_you_sent_fiat: >
+  @${sellerUsername} has been notified that you have sent the ${order.fiat_amount} ${order.fiat_code} using ${order.payment_method}\\. 
+
+  Once @${sellerUsername} confirms the money was received, the ${order.amount} $${tokenName()} will be released from escrow and sent to your wallet `${order.buyer_invoice}`
+buyer_told_me_that_sent_fiat: >
+  @${buyerUsername} has informed me that the ${order.fiat_amount} ${order.fiat_code} was sent using ${order.payment_method}. Once you receive it please release the ${order.amount} $${tokenName()} from the escrow. You will not be able to create another order until this order has been completed.
 release_order_cmd: /release
-you_have_orders_waiting: 🤖 you have one or more orders where the buyer informs
+you_have_orders_waiting: you have one or more orders where the buyer informs
   that the fiat money was sent to you but you haven't released the
   ${tokenName()} yet. You will not be able to create new orders until you
   release such funds.
@@ -424,12 +440,9 @@ cant_take_more_orders: ⛔ Sorry! You can't take another order while you have ot
 seller_released: 💸 Seller has already released the ${tokenName()}, you must
   wait for your invoice to be paid.
 your_purchase_is_completed: >
-  🪙 Your ${tokenName()} purchase has been completed successfully,
-  @${sellerUsername} has confirmed your fiat payment and I have paid your
-  invoice, enjoy sound money!
+  Your exchange has been completed. 
 
-
-  ⚡️🍊⚡️
+  Please qualify @${sellerUsername}
 problem_getting_price: There is a problem accessing this coin's price, please
   try later. If the problem persists, please get in touch with an administrator.
 update_user_setting: I have modify the field ${field} to ${newState}
@@ -450,12 +463,11 @@ created: Created
 yes: Yes
 no: No
 wizard_add_invoice_init: >
-  🤖 I need you to send me an wallet address to receive ${satsAmount}
-  ${tokenName()} that is worth ${currency} ${fiatAmount} so I can send you the
-  money.
+  Please share the wallet address to receive the ${satsAmount}
+  $${tokenName()} tokens that you will receive for your ${currency} ${fiatAmount}.
 
 
-  If you do not send the address within ${expirationTime} minutes the order will be cancelled
+  If you do not send the address within ${expirationTime} minutes the order will be cancelled.
 wizard_add_invoice_exit: >
   You have exited wizard mode, you can now write down the commands and add an
   invoice to the order with the command /setinvoice indicating Order ID and
@@ -570,7 +582,7 @@ pending_payment_success: >
 
   Proof of payment: ${paymentSecret}
 pending_payment_failed: >
-  🤖 I have tried to pay your invoice ${attempts} times and failed. Sometimes
+  I have tried to pay your invoice ${attempts} times and failed. Sometimes
   the Lightning Network users can't receive payments because their wallet has
   not enough inbound liquidity or the node is not well connected in the network.
   You might want to try to generate an invoice from another wallet.
@@ -601,7 +613,7 @@ price: Price
 for: For
 generic_error: An error occurred
 sats: ${tokenName()}
-no_capital_letters: 🤖 You are trying to execute a command with the first letter
+no_capital_letters: You are trying to execute a command with the first letter
   capitalized. Please write the entire command in lowercase.
 unknown_command: 😕 I do not understand. Please use /help to see the list of available commands
 invoice_invalid_error: >
@@ -690,6 +702,7 @@ hold_invoice_memo: '@${botName} - Escrow amount Order #${orderId}: SELL BTC for
   ${fiatCode} ${fiatAmount} - It WILL FREEZE IN YOUR WALLET. It will release
   once you run /release. It will return if buyer does not confirm the payment'
 tap_button: Select an order to perform the operation
+tap_fiatsent: Please select for what specific order you made a payment
 tap_release: Select the order to release the funds, once you press the button,
   the operation cannot be reversed.
 earnings: Earnings

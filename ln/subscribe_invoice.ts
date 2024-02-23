@@ -147,6 +147,7 @@ const payHoldInvoice = async (bot: MainContext, order: IOrder) => {
     if (buyerUser && sellerUser) {
       await messages.releasedSatsMessage(
         bot,
+        order,
         sellerUser,
         buyerUser,
         i18nCtxBuyer,

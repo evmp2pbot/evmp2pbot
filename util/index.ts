@@ -227,7 +227,7 @@ const decimalRound = (value: number, exp?: number) => {
 export { decimalRound };
 
 export const extractId = (text: string) => {
-  const matches = text.match(/:([a-f0-9]{24}):$/);
+  const matches = text.match(/:([a-f0-9]{24}):/);
   if (!matches) {
     throw new Error('No matched ID');
   }

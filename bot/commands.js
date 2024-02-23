@@ -664,6 +664,7 @@ const fiatSent = async (ctx, orderId, user) => {
     const i18nCtxSeller = await getUserI18nContext(seller);
     await messages.fiatSentMessages(
       ctx,
+      order,
       user,
       seller,
       i18nCtxBuyer,
