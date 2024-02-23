@@ -196,9 +196,9 @@ get_in_touch_with_seller: >
   Order ID: #${orderId}
 
 
-  Get in touch with the seller, user @${sellerUsername} to get the details on how to send the ${fiatAmount} ${currency} using ${paymentMethod}.
+  @${sellerUsername} deposited ${order.amount} $${tokenName()} into escrow that will be released after your send ${fiatAmount} ${currency} via Paypal. Get in touch with @${sellerUsername} via direct message in Telegram to discuss details of the payment.
 
-  Once you send the money, please confirm here by typing this command 👇
+  Once you send the ${fiatAmount} ${currency} via ${paymentMethod}, please confirm here by typing this command 👇
 fiatsent_order_cmd: /fiatsent
 get_in_touch_with_buyer: >
   Order ID: #${orderId}
@@ -212,23 +212,28 @@ buyer_took_your_order: >
   Order ID: #${orderId}
 
 
-  @${buyerUsername} has picked up your order and wants to buy ${order.amount} $${tokenName()}.
+  You successfully deposited ${order.amount} $${tokenName()}.
 
-  Get in touch via DM and share instructions on how to send you ${currency} ${fiatAmount} through ${paymentMethod}.
+  You can now get in touch with @${buyerUsername} and share instructions on how to send you ${fiatAmount} ${currency} through ${paymentMethod}.
 
-  Once you received the full amount, you have to release the ${order.amount} $${tokenName()} from the escrow.
-waiting_seller_to_pay: 'I have sent a payment request to the seller so he sends
+  Once you received the ${fiatAmount} ${currency}, you have to release the ${order.amount} $${tokenName()} from the escrow.
+waiting_seller_to_pay: >
+  I have sent a payment request to the seller so he sends
   your ${tokenName()} for the order ID #${orderId}, as soon as payment is made I
-  will put you both in touch'
+  will put you both in touch
+  I have sent a request to the seller to deposit ${order.amount} $${tokenName()} into escrow that will be released once the your completed the payment.
+
+  As soon as the escrow deposit has been detected you will get receive the Telegram handle of the user to discuss ${order.fiat_amount} ${currency} payment via ${order.payment_method}.
 received_less_than_expected: I received less than ${amount} ${tokenName()} for
   order ${orderId} in the escrow wallet address, please send ${diff} more
   ${tokenName()} to continue.
 sell_success: >
-  Your exchange has been completed. 
+  Your trade with @${buyerUsername} has been completed 🎉
+
 
   Please qualify @${buyerUsername}
 funds_released: >
-  @${sellerUsername} already released the ${order.amount} $${tokenName()} from escrow. You can expect the tokens in your wallet any minute now.
+  @${sellerUsername} already released the ${order.amount} $${tokenName()} from escrow\\. You can expect the tokens in your wallet `${order.buyer_invoice}` any minute now\\.
 rate_counterpart: '-👇-'
 cant_process_order: This order cannot be processed, please check the ID is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
@@ -383,7 +388,9 @@ I_told_seller_you_sent_fiat: >
 
   Once @${sellerUsername} confirms the money was received, the ${order.amount} $${tokenName()} will be released from escrow and sent to your wallet `${order.buyer_invoice}`
 buyer_told_me_that_sent_fiat: >
-  @${buyerUsername} has informed me that the ${order.fiat_amount} ${order.fiat_code} was sent using ${order.payment_method}. Once you receive it please release the ${order.amount} $${tokenName()} from the escrow. You will not be able to create another order until this order has been completed.
+  @${buyerUsername} confirmed sending ${order.fiat_amount} ${order.fiat_code} through ${order.payment_method}. Please validate reception and then release the ${order.amount} $${tokenName()} from the escrow.
+
+  You will not be able to create another order until this order has been completed.
 release_order_cmd: /release
 you_have_orders_waiting: you have one or more orders where the buyer informs
   that the fiat money was sent to you but you haven't released the
@@ -440,7 +447,8 @@ cant_take_more_orders: ⛔ Sorry! You can't take another order while you have ot
 seller_released: 💸 Seller has already released the ${tokenName()}, you must
   wait for your invoice to be paid.
 your_purchase_is_completed: >
-  Your exchange has been completed. 
+  Your trade with @${sellerUsername} has been completed 🎉
+
 
   Please qualify @${sellerUsername}
 problem_getting_price: There is a problem accessing this coin's price, please
@@ -702,7 +710,7 @@ hold_invoice_memo: '@${botName} - Escrow amount Order #${orderId}: SELL BTC for
   ${fiatCode} ${fiatAmount} - It WILL FREEZE IN YOUR WALLET. It will release
   once you run /release. It will return if buyer does not confirm the payment'
 tap_button: Select an order to perform the operation
-tap_fiatsent: Please select for what specific order you made a payment
+tap_fiatsent: Please select the order you made a payment for
 tap_release: Select the order to release the funds, once you press the button,
   the operation cannot be reversed.
 earnings: Earnings

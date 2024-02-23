@@ -534,6 +534,7 @@ const onGoingTakeSellMessage = async (
         sellerUsername: sellerUser.username,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         paymentMethod: order.payment_method,
+        order,
       })
     );
     await bot.telegram.sendMessage(
@@ -587,7 +588,7 @@ const takeSellWaitingSellerToPayMessage = async (
   try {
     await bot.telegram.sendMessage(
       buyerUser.tg_id,
-      ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id })
+      ctx.i18n.t('waiting_seller_to_pay', { orderId: order._id, order })
     );
   } catch (error) {
     logger.error(error);
@@ -612,7 +613,8 @@ const releasedSatsMessage = async (
       i18nBuyer.t('funds_released', {
         sellerUsername: sellerUser.username,
         order,
-      })
+      }),
+      { parse_mode: 'MarkdownV2' }
     );
   } catch (error) {
     logger.error(error);
@@ -1020,6 +1022,7 @@ const addInvoiceMessage = async (
         sellerUsername: seller.username,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
         paymentMethod: order.payment_method,
+        order,
       })
     );
     await bot.telegram.sendMessage(
