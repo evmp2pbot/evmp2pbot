@@ -191,9 +191,9 @@ const createOrderSteps = {
         prompt.message_id
       );
     };
-    const { currency, fiatAmount } = wizardState(ctx);
+    const { currency, fiatAmount, type } = wizardState(ctx);
     const prompt = await ctx.reply(
-      ctx.i18n.t('enter_payment_method', { currency, fiatAmount })
+      ctx.i18n.t(`enter_payment_method_${type}`, { currency, fiatAmount })
     );
     return ctx.wizard.next();
   },
@@ -264,8 +264,8 @@ const createOrderPrompts = {
     );
   },
   async currency(ctx: MainContext) {
-    const { currencies } = wizardState(ctx);
-    if (!currencies) return ctx.reply(ctx.i18n.t('enter_currency'));
+    const { currencies, type } = wizardState(ctx);
+    if (!currencies) return ctx.reply(ctx.i18n.t(`enter_currency_${type}`));
     const buttons = currencies.map(currency =>
       Markup.button.callback(currency, currency)
     );
@@ -281,8 +281,8 @@ const createOrderPrompts = {
     );
   },
   async fiatAmount(ctx: MainContext) {
-    const { currency } = wizardState(ctx);
-    return ctx.reply(ctx.i18n.t('enter_currency_amount', { currency }));
+    const { currency, type } = wizardState(ctx);
+    return ctx.reply(ctx.i18n.t(`enter_currency_amount_${type}`, { currency }));
   },
   async sats(ctx: MainContext) {
     /*
@@ -291,9 +291,9 @@ const createOrderPrompts = {
       'marketPrice'
     );
     */
-    const { currency, fiatAmount } = wizardState(ctx);
+    const { currency, fiatAmount, type } = wizardState(ctx);
     return ctx.reply(
-      ctx.i18n.t('enter_sats_amount', { fiatAmount, currency })
+      ctx.i18n.t(`enter_sats_amount_${type}`, { fiatAmount, currency })
       // Markup.inlineKeyboard([button])
     );
   },

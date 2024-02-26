@@ -657,35 +657,58 @@ new_dispute: ⚠️⚠️⚠️ A user has started a dispute, press the button t
 take_dispute: Take dispute
 not_authorized: 🤨 You are not authorized to perform this operation
 need_default_community: To perform this operation, you need to have a default community
-enter_sats_amount: >
-  Step 3 of 4:
-
-  How many $${tokenName()} would you like to sell for ${fiatAmount} ${currency}?
-
-  Only full numbers and no fractions please.
 market_price: Market price
-enter_currency: >
+enter_currency_sell: >
   Step 1 of 4:
 
   What currency do you want to receive?
-  
+
   Enter a currency code e.g.: USD
-choose_currency: Choose a currency
-enter_currency_amount: >
+enter_currency_amount_sell: >
   Step 2 of 4:
 
   How much ${currency} do you want to receive?
 
   Only full numbers and no fractions please.
+enter_sats_amount_sell: >
+  Step 3 of 4:
 
-enter_premium_discount: Enter the premium(+) or discount(-) to apply to the market price.
-no_premium_or_discount: No premium or discount
-enter_payment_method: >
+  How many $${tokenName()} would you like to sell for ${fiatAmount} ${currency}?
+
+  Only full numbers and no fractions please.
+enter_payment_method_sell: >
   Step 4 of 4:
 
   How will you receive the ${fiatAmount} ${currency}?
 
   (PayPal, Sepa Wire, SWIFT Wire, Venmo,...)
+enter_currency_buy: >
+  Step 1 of 4:
+
+  What currency do you want to pay?
+
+  Enter a currency code e.g.: USD
+enter_currency_amount_buy: >
+  Step 2 of 4:
+
+  How much ${currency} do you want to pay?
+
+  Only full numbers and no fractions please.
+enter_sats_amount_buy: >
+  Step 3 of 4:
+
+  How many $${tokenName()} would you like to buy for ${fiatAmount} ${currency}?
+
+  Only full numbers and no fractions please.
+enter_payment_method_buy: >
+  Step 4 of 4:
+
+  How will you pay the ${fiatAmount} ${currency}?
+
+  (PayPal, Sepa Wire, SWIFT Wire, Venmo,...)
+choose_currency: Choose a currency
+enter_premium_discount: Enter the premium(+) or discount(-) to apply to the market price.
+no_premium_or_discount: No premium or discount
 invalid_currency: Invalid currency
 not_number: It must be a number
 not_zero: Cannot be 0 (zero)
