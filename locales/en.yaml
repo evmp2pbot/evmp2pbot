@@ -196,7 +196,7 @@ get_in_touch_with_seller: >
   Order ID: #${orderId}
 
 
-  @${sellerUsername} deposited ${order.amount} $${tokenName()} into escrow that will be released after your send ${fiatAmount} ${currency} via Paypal. Get in touch with @${sellerUsername} via direct message in Telegram to discuss details of the payment.
+  @${sellerUsername} deposited ${order.amount} $${tokenName()} into escrow that will be released after your send ${fiatAmount} ${currency} via ${paymentMethod}. Get in touch with @${sellerUsername} via direct message in Telegram to discuss details of the payment.
 
   Once you send the ${fiatAmount} ${currency} via ${paymentMethod}, please confirm here by typing this command 👇
 fiatsent_order_cmd: /fiatsent
@@ -218,12 +218,9 @@ buyer_took_your_order: >
 
   Once you received the ${fiatAmount} ${currency}, you have to release the ${order.amount} $${tokenName()} from the escrow.
 waiting_seller_to_pay: >
-  I have sent a payment request to the seller so he sends
-  your ${tokenName()} for the order ID #${orderId}, as soon as payment is made I
-  will put you both in touch
   I have sent a request to the seller to deposit ${order.amount} $${tokenName()} into escrow that will be released once the your completed the payment.
 
-  As soon as the escrow deposit has been detected you will get receive the Telegram handle of the user to discuss ${order.fiat_amount} ${currency} payment via ${order.payment_method}.
+  As soon as the escrow deposit has been detected you will receive Telegram handle of the user to discuss ${order.fiat_amount} ${order.fiat_code} payment via ${order.payment_method}.
 received_less_than_expected: I received less than ${amount} ${tokenName()} for
   order ${orderId} in the escrow wallet address, please send ${diff} more
   ${tokenName()} to continue.
@@ -609,6 +606,7 @@ wizard_header: >
 buying: Buying
 selling: Selling
 receive_payment: Receive payment
+receive_payment_via: Receive payment via
 pay: Pay
 pay_via: Pay via
 is: is
@@ -662,19 +660,21 @@ need_default_community: To perform this operation, you need to have a default co
 enter_sats_amount: >
   Step 3 of 4:
 
-  How many $${tokenName()} tokens would you like to receive for ${fiatAmount} ${currency}.
+  How many $${tokenName()} would you like to sell for ${fiatAmount} ${currency}?
 
   Only full numbers and no fractions please.
 market_price: Market price
 enter_currency: >
   Step 1 of 4:
 
+  What currency do you want to receive?
+  
   Enter a currency code e.g.: USD
 choose_currency: Choose a currency
 enter_currency_amount: >
   Step 2 of 4:
 
-  Enter the amount of ${currency} you want to pay.
+  How much ${currency} do you want to receive?
 
   Only full numbers and no fractions please.
 
@@ -683,7 +683,7 @@ no_premium_or_discount: No premium or discount
 enter_payment_method: >
   Step 4 of 4:
 
-  How will you pay the ${fiatAmount} ${currency}?
+  How will you receive the ${fiatAmount} ${currency}?
 
   (PayPal, Sepa Wire, SWIFT Wire, Venmo,...)
 invalid_currency: Invalid currency
