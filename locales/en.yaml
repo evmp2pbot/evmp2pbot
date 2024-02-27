@@ -154,7 +154,7 @@ cancel: Cancel
 pay_invoice: Please pay this invoice of ${amount} ${tokenName()} for ${currency}
   ${fiatAmount} to start the operation.
 payment_received: >
-  🤑 Payment received!
+  Payment received!
 
 
   Now I need the buyer to send an invoice so I can send ${tokenName()} to his/her wallet. I will put you both in touch as soon as the buyer sends the invoice
@@ -661,7 +661,7 @@ market_price: Market price
 enter_currency_sell: >
   Step 1 of 4:
 
-  What currency do you want to receive?
+  What currency do you want to receive for the $${tokenName()}?
 
   Enter a currency code e.g.: USD
 enter_currency_amount_sell: >
@@ -685,7 +685,7 @@ enter_payment_method_sell: >
 enter_currency_buy: >
   Step 1 of 4:
 
-  What currency do you want to pay?
+  In what currency do you want to pay for the $${tokenName()}?
 
   Enter a currency code e.g.: USD
 enter_currency_amount_buy: >
