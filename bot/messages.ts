@@ -22,6 +22,7 @@ import { I18nContext } from '@grammyjs/i18n';
 import { IConfig } from '../models/config';
 import { IPendingPayment } from '../models/pending_payment';
 import { IFiat } from '../util/fiatModel';
+import { ExtWalletError } from '../ln/extWallet';
 
 const startMessage = async (ctx: MainContext) => {
   try {
@@ -111,6 +112,62 @@ const invoicePaymentRequestMessage = async (
         parse_mode: 'MarkdownV2',
       },
     ]);
+    await ctx.telegram.sendMessage(
+      user.tg_id,
+      i18n.t('extwallet_prompt_request_payment'),
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: i18n.t('extwallet_prompt_request_payment_button'),
+                callback_data: `extWalletRequestPayment(${order._id})`,
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const extWalletPaymentRequestSentMessage = async (
+  ctx: MainContext,
+  user: IUser,
+  i18n: I18nContext
+) => {
+  try {
+    const message = i18n.t('extwallet_request_payment_sent');
+    await ctx.telegram.sendMessage(user.tg_id, message);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const extWalletAddressRequestSentMessage = async (
+  ctx: MainContext,
+  user: IUser,
+  i18n: I18nContext
+) => {
+  try {
+    const message = i18n.t('extwallet_request_wallet_sent');
+    return await ctx.telegram.sendMessage(user.tg_id, message);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const extWalletAddressReceivedMessage = async (
+  ctx: MainContext,
+  user: IUser,
+  address: string,
+  i18n: I18nContext
+) => {
+  try {
+    const message = i18n.t('extwallet_received_address', { address });
+    return await ctx.telegram.sendMessage(user.tg_id, message);
   } catch (error) {
     logger.error(error);
   }
@@ -348,6 +405,36 @@ const invalidDataMessage = async (
 ) => {
   try {
     await bot.telegram.sendMessage(user.tg_id, ctx.i18n.t('invalid_data'));
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const extWalletErrorMessage = async (
+  ctx: MainContext,
+  bot: Telegraf<MainContext>,
+  type: 'buy' | 'sell',
+  user: IUser,
+  error: Error
+) => {
+  let errorCode = 'generic';
+  if (
+    error instanceof ExtWalletError &&
+    ['user_not_found', 'not_enough_token'].includes(error.error)
+  ) {
+    errorCode = error.error;
+  } else {
+    logger.error(
+      `extWalletErrorMessage: ${error.message} ${(error as any).error}`
+    );
+  }
+  try {
+    return await bot.telegram.sendMessage(
+      user.tg_id,
+      `${ctx.i18n.t(`extwallet_error_${errorCode}`)}, ${ctx.i18n.t(
+        `extwallet_error_${type}_suggestion`
+      )}`
+    );
   } catch (error) {
     logger.error(error);
   }
@@ -1515,6 +1602,18 @@ const wizardAddInvoiceInitMessage = async (
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
       })
     );
+    await ctx.sendMessage(ctx.i18n.t('extwallet_prompt_request_wallet'), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: ctx.i18n.t('extwallet_prompt_request_wallet_button'),
+              callback_data: `extWalletRequestAddress(${order._id})`,
+            },
+          ],
+        ],
+      },
+    });
   } catch (error) {
     logger.error(error);
   }

@@ -7,6 +7,7 @@ const { connect: mongoConnect } = require('./db_connect');
 const { resubscribeInvoices } = require('./ln');
 const { logger } = require('./logger');
 const { delay } = require('./util');
+const { startCallbackServer } = require('./ln/extWallet');
 
 void (async () => {
   process.on('unhandledRejection', e => {
@@ -35,6 +36,7 @@ void (async () => {
         };
       }
       const bot = start(process.env.BOT_TOKEN, options);
+      startCallbackServer(bot);
       // Wait 1 seconds before try to resubscribe hold invoices
       await delay(1000);
       await resubscribeInvoices(bot);

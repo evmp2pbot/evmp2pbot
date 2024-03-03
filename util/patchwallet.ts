@@ -79,7 +79,7 @@ const getAccessToken = lazyMemo(
 // Fail early if any setting is incorrect
 Promise.all([failFast(getClientId), failFast(getClientSecret)])
   .then(() => failFast(getAccessToken))
-  .catch();
+  .catch(() => undefined);
 
 const pwApi = async <TResult = unknown, TConfig = unknown>(
   path: string,

@@ -864,3 +864,17 @@ disclaimer: >
 
   Neither the developers nor the dispute resolvers are responsible for any losses or damages that the user may suffer as a result of using the bot.
 order_frozen: You have frozen the order
+extwallet_prompt_request_payment: If you are using ${extWalletDisplayName}, you can click the button below to deposit from that.
+extwallet_prompt_request_payment_button: Pay via ${extWalletDisplayName}
+extwallet_request_payment_sent: A payment request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and authorize the request
+extwallet_prompt_request_wallet: If you are using ${extWalletDisplayName}, you can click the button below to receive the $${tokenName()} to your ${extWalletDisplayName}.
+extwallet_prompt_request_wallet_button: Receive via ${extWalletDisplayName}
+extwallet_request_wallet_sent: A wallet address request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and approve the request
+extwallet_received_address: Got wallet address from ${extWalletDisplayName}, receiving $${tokenName()} to your wallet ${address}
+
+extwallet_error_user_not_found: It seems you haven't used ${extWalletDisplayName} before
+extwallet_error_not_enough_token: It seems you don't have enough $${tokenName()} in your ${extWalletDisplayName}
+extwallet_error_generic: Sorry, we can't send the request to ${extWalletDisplayName} at this moment
+
+extwallet_error_buy_suggestion: please manually paste your wallet address to the chat.
+extwallet_error_sell_suggestion: please manually send your $${tokenName()} to the escrow.

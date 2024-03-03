@@ -70,7 +70,14 @@ exports.onCommunityInfo = async ctx => {
   ]);
   const text = `${community.name}\n${community.group}`;
   await ctx.reply(text, {
-    reply_markup: { inline_keyboard: rows },
+    reply_markup: {
+      inline_keyboard: [
+        {
+          text: '⭐'.repeat(num),
+          callback_data: `showStarBtn(${num},${order._id})`,
+        },
+      ],
+    },
   });
 };
 

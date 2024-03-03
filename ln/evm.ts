@@ -62,7 +62,7 @@ class TransferMonitor {
   }
 }
 export const TOKEN_CONTRACT = ensureEnv('TOKEN_CONTRACT');
-let TOKEN_SYMBOL = '';
+export let TOKEN_SYMBOL = '';
 const EVM_PROVIDER_URL = ensureEnv('EVM_PROVIDER_URL');
 const provider = new JsonRpcProvider(EVM_PROVIDER_URL, undefined, {
   pollingInterval: 30000,

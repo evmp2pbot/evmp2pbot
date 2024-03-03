@@ -63,6 +63,11 @@ import {
   WizardSessionData,
 } from 'telegraf/scenes';
 import { getI18nGlobalContext } from '../util/i18n';
+import {
+  extWalletRequestAddress,
+  extWalletRequestAddressResponse,
+  extWalletRequestPayment,
+} from './commands2';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -168,7 +173,18 @@ const initialize = (
   bot.use(session());
   bot.use(limit());
   bot.use(i18n.middleware());
-  bot.use(stageMiddleware());
+  // bot.use(stageMiddleware());
+  const stage = stageMiddleware();
+  bot.use(async (ctx, next) => {
+    if (
+      'callback_query' in ctx.update &&
+      'data' in ctx.update.callback_query &&
+      ctx.update.callback_query.data.startsWith('extWalletRequestAddress')
+    ) {
+      return next();
+    }
+    return stage(ctx, next);
+  });
   bot.use(commandArgsMiddleware());
 
   // We schedule pending payments job
@@ -887,6 +903,44 @@ const initialize = (
       }
       await ctx.deleteMessage().catch(() => {});
       await release(ctx, ctx.match[1]);
+    }
+  );
+
+  bot.action(
+    /^extWalletRequestPayment\((\w{24})\)$/,
+    userMiddleware,
+    async (ctx: MainContext) => {
+      if (ctx.match === null) {
+        throw new Error('ctx.match should not be null');
+      }
+      await extWalletRequestPayment(ctx, bot, ctx.match[1]);
+    }
+  );
+
+  bot.action(
+    /^extWalletRequestAddress\((\w{24})\)$/,
+    userMiddleware,
+    async (ctx: MainContext) => {
+      if (ctx.match === null) {
+        throw new Error('ctx.match should not be null');
+      }
+      await extWalletRequestAddress(ctx, bot, ctx.match[1]);
+    }
+  );
+
+  bot.action(
+    /^extWalletRequestAddressResponse\((\w{24}),(0x[0-9a-fA-F]{40})\)$/,
+    userMiddleware,
+    async (ctx: MainContext) => {
+      if (ctx.match === null) {
+        throw new Error('ctx.match should not be null');
+      }
+      await extWalletRequestAddressResponse(
+        ctx,
+        bot,
+        ctx.match[1],
+        ctx.match[2]
+      );
     }
   );
 
