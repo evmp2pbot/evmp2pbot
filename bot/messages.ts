@@ -491,7 +491,8 @@ const showHoldInvoiceMessage = async (
   request: string,
   amount: number,
   fiatCode: IOrder['fiat_code'],
-  fiatAmount: IOrder['fiat_amount']
+  fiatAmount: IOrder['fiat_amount'],
+  order: IOrder
 ) => {
   try {
     const currencyObj = getCurrency(fiatCode);
@@ -517,6 +518,22 @@ const showHoldInvoiceMessage = async (
         parse_mode: 'MarkdownV2',
       },
     ]);
+    await ctx.telegram.sendMessage(
+      ctx.user.tg_id,
+      ctx.i18n.t('extwallet_prompt_request_payment'),
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: ctx.i18n.t('extwallet_prompt_request_payment_button'),
+                callback_data: `extWalletRequestPayment(${order._id})`,
+              },
+            ],
+          ],
+        },
+      }
+    );
   } catch (error) {
     logger.error(error);
   }

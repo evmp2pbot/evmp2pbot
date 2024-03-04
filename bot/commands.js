@@ -393,7 +393,8 @@ const showHoldInvoice = async (ctx, bot, order) => {
       request,
       amount,
       order.fiat_code,
-      order.fiat_amount
+      order.fiat_amount,
+      order
     );
   } catch (error) {
     logger.error(`Error in showHoldInvoice: ${error}`);
