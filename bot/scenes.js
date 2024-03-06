@@ -1,7 +1,7 @@
 const { Scenes } = require('telegraf');
 const { isValidInvoice } = require('./validations');
 const { Order, PendingPayment } = require('../models');
-const { waitPayment, addInvoice, showHoldInvoice } = require('./commands');
+const { /* waitPayment, */ addInvoice, showHoldInvoice } = require('./commands');
 const { getCurrency, getUserI18nContext } = require('../util');
 const messages = require('./messages');
 const { isPendingPayment } = require('../ln');
