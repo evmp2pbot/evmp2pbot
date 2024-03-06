@@ -8,7 +8,7 @@ const {
   settleHoldInvoice,
 } = require('../ln');
 const { Order, User, Dispute } = require('../models');
-const { safeSceneLeave } = require('./commands2');
+const { safeSceneLeave } = require('./utils');
 const messages = require('./messages');
 const {
   getBtcFiatPrice,

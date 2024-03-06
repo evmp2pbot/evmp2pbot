@@ -13,6 +13,7 @@ import { Telegraf } from 'telegraf';
 import { requestPayment, requestWalletAddress } from '../ln/extWallet';
 import { ethers } from 'ethers';
 import { SceneContext } from 'telegraf/scenes';
+import { safeSceneLeave } from './utils';
 
 export const extWalletRequestPayment = async (
   ctx: MainContext,
@@ -162,10 +163,3 @@ export const extWalletRequestAddressResponse = async (
     logger.error(error);
   }
 };
-export async function safeSceneLeave(ctx: MainContext) {
-  if (ctx.scene) {
-    await ctx.scene.leave();
-  } else if ((ctx as unknown as SceneContext).session?.__scenes) {
-    (ctx as unknown as SceneContext).session.__scenes = {};
-  }
-}
