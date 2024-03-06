@@ -7,7 +7,7 @@ import {
   waitPayment,
   cancelShowHoldInvoice,
   cancelAddInvoice,
-// @ts-ignore
+  // @ts-ignore
 } from './commands';
 import { Telegraf } from 'telegraf';
 import { requestPayment, requestWalletAddress } from '../ln/extWallet';
@@ -42,6 +42,7 @@ export const extWalletRequestPayment = async (
         telegramId: targetUser.tg_id,
         recipientAddress: order.hash,
         amount: order.amount.toString(),
+        orderId: order._id.toString(),
       });
     } catch (e) {
       await messages.extWalletErrorMessage(
@@ -168,4 +169,3 @@ export async function safeSceneLeave(ctx: MainContext) {
     (ctx as unknown as SceneContext).session.__scenes = {};
   }
 }
-

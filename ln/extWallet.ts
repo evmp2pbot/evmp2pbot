@@ -104,10 +104,12 @@ export async function requestPayment({
   telegramId,
   recipientAddress,
   amount,
+  orderId,
 }: {
   telegramId: string;
   recipientAddress: string;
   amount: string;
+  orderId: string;
 }) {
   // Validate amount
   ethers.parseEther(amount);
@@ -116,6 +118,7 @@ export async function requestPayment({
     recipientAddress,
     tokenContract: TOKEN_CONTRACT,
     amount,
+    message: `To pay ${amount} ${TOKEN_SYMBOL} for order ${orderId}`,
   });
 }
 
@@ -135,7 +138,7 @@ export async function requestWalletAddress({
     from: message.from,
     chat: message.chat,
     date: message.date,
-    text: ""
+    text: '',
   };
   return await request(REQUEST_WALLET_ADDRESS_URL, {
     userTelegramID: telegramId,
