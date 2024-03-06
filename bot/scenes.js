@@ -30,6 +30,8 @@ const addInvoiceWizard = new Scenes.WizardScene(
   },
   async ctx => {
     try {
+      return ctx?.scene?.leave(); // Disable manual address input
+      /*
       if (ctx.message === undefined) return ctx.scene.leave();
       if (ctx.message.document)
         return await ctx.reply(ctx.i18n.t('must_enter_text'));
@@ -61,6 +63,7 @@ const addInvoiceWizard = new Scenes.WizardScene(
       await waitPayment(ctx, bot, buyer, seller, order, lnInvoice);
 
       return ctx.scene.leave();
+      */
     } catch (error) {
       logger.error(error);
       return ctx.scene.leave();

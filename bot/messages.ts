@@ -1,5 +1,4 @@
 import { TelegramError, Telegraf } from 'telegraf';
-const QR = require('qrcode');
 import {
   getCurrency,
   numberFormat,
@@ -100,34 +99,18 @@ const invoicePaymentRequestMessage = async (
       days: ageInDays,
       trades: buyer.trades_completed,
     });
-    await ctx.telegram.sendMessage(user.tg_id, message);
-    // Create QR code
-    const qrBytes = await QR.toBuffer(request);
-    // Send payment request in QR and text
-    await ctx.telegram.sendMediaGroup(user.tg_id, [
-      {
-        type: 'photo',
-        media: { source: qrBytes },
-        caption: ['`', request, '`'].join(''),
-        parse_mode: 'MarkdownV2',
-      },
-    ]);
-    await ctx.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('extwallet_prompt_request_payment'),
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: i18n.t('extwallet_prompt_request_payment_button'),
-                callback_data: `extWalletRequestPayment(${order._id})`,
-              },
-            ],
+    await ctx.telegram.sendMessage(user.tg_id, message, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: i18n.t('extwallet_prompt_request_payment_button'),
+              callback_data: `extWalletRequestPayment(${order._id})`,
+            },
           ],
-        },
-      }
-    );
+        ],
+      },
+    });
   } catch (error) {
     logger.error(error);
   }
@@ -500,27 +483,13 @@ const showHoldInvoiceMessage = async (
       !!currencyObj && !!currencyObj.symbol_native
         ? currencyObj.symbol_native
         : fiatCode;
-    await ctx.reply(
+    await ctx.telegram.sendMessage(
+      ctx.user.tg_id,
       ctx.i18n.t('pay_invoice', {
         amount: numberFormat(fiatCode, amount),
         fiatAmount: numberFormat(fiatCode, fiatAmount),
         currency,
-      })
-    );
-    // Create QR code
-    const qrBytes = await QR.toBuffer(request);
-    // Send payment request in QR and text
-    await ctx.replyWithMediaGroup([
-      {
-        type: 'photo',
-        media: { source: qrBytes },
-        caption: ['`', request, '`'].join(''),
-        parse_mode: 'MarkdownV2',
-      },
-    ]);
-    await ctx.telegram.sendMessage(
-      ctx.user.tg_id,
-      ctx.i18n.t('extwallet_prompt_request_payment'),
+      }),
       {
         reply_markup: {
           inline_keyboard: [
@@ -1611,26 +1580,26 @@ const wizardAddInvoiceInitMessage = async (
   expirationTime: number
 ) => {
   try {
-    await ctx.reply(
+    await ctx.sendMessage(
       ctx.i18n.t('wizard_add_invoice_init', {
         expirationTime,
         satsAmount: numberFormat(order.fiat_code, order.amount),
         currency,
         fiatAmount: numberFormat(order.fiat_code, order.fiat_amount),
-      })
-    );
-    await ctx.sendMessage(ctx.i18n.t('extwallet_prompt_request_wallet'), {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: ctx.i18n.t('extwallet_prompt_request_wallet_button'),
-              callback_data: `extWalletRequestAddress(${order._id})`,
-            },
+      }),
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: ctx.i18n.t('extwallet_prompt_request_wallet_button'),
+                callback_data: `extWalletRequestAddress(${order._id})`,
+              },
+            ],
           ],
-        ],
-      },
-    });
+        },
+      }
+    );
   } catch (error) {
     logger.error(error);
   }

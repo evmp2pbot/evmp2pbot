@@ -81,7 +81,6 @@ const cancelHoldInvoice = async ({ hash }: { hash: string }) => {
       return;
     }
     const logs = await listEscrowWalletTx(hash);
-    console.dir(logs);
     for (const log of logs) {
       if (!log.args) {
         continue;

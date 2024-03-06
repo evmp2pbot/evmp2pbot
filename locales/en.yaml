@@ -60,7 +60,7 @@ invoice_payment_request: >
   ${pluralize(days, 'day', 'days')} using the bot
 
 
-  Please deposit ${order.amount} $${tokenName()} into the following escrow account.
+  Please deposit ${order.amount} $${tokenName()} into the escrow account.
 
   This order will expire in ${expirationTime} minutes.
 pending_sell: >
@@ -151,8 +151,8 @@ begin_take_buy: >
 continue: Continue
 accept: Accept
 cancel: Cancel
-pay_invoice: Please pay this invoice of ${amount} ${tokenName()} for ${currency}
-  ${fiatAmount} to start the operation.
+pay_invoice: Please transfer of ${amount} $${tokenName()} to the escrow account to fulfill the order of
+  ${fiatAmount} ${currency}.
 payment_received: >
   Payment received!
 
@@ -864,10 +864,10 @@ disclaimer: >
 
   Neither the developers nor the dispute resolvers are responsible for any losses or damages that the user may suffer as a result of using the bot.
 order_frozen: You have frozen the order
-extwallet_prompt_request_payment: If you are using ${extWalletDisplayName}, you can click the button below to deposit from that.
+extwallet_prompt_request_payment: Please click the button below to deposit from ${extWalletDisplayName}.
 extwallet_prompt_request_payment_button: Pay via ${extWalletDisplayName}
 extwallet_request_payment_sent: A payment request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and authorize the request
-extwallet_prompt_request_wallet: If you are using ${extWalletDisplayName}, you can click the button below to receive the $${tokenName()} to your ${extWalletDisplayName}.
+extwallet_prompt_request_wallet: Please click the button below to receive the $${tokenName()} to your ${extWalletDisplayName}.
 extwallet_prompt_request_wallet_button: Receive via ${extWalletDisplayName}
 extwallet_request_wallet_sent: A wallet address request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and approve the request
 extwallet_received_address: Got wallet address from ${extWalletDisplayName}, receiving $${tokenName()} to your wallet ${address}
@@ -876,5 +876,5 @@ extwallet_error_user_not_found: It seems you haven't used ${extWalletDisplayName
 extwallet_error_not_enough_token: It seems you don't have enough $${tokenName()} in your ${extWalletDisplayName}
 extwallet_error_generic: Sorry, we can't send the request to ${extWalletDisplayName} at this moment
 
-extwallet_error_buy_suggestion: please manually paste your wallet address to the chat.
-extwallet_error_sell_suggestion: please manually send your $${tokenName()} to the escrow.
+extwallet_error_buy_suggestion: your order is cancelled.
+extwallet_error_sell_suggestion: your order is cancelled.

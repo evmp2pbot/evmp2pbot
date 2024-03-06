@@ -27,7 +27,6 @@ const cancelOrders = async bot => {
     });
     for (const order of waitingPaymentOrders) {
       if (order.status === 'WAITING_PAYMENT') {
-        // EVMTODO: Check balance before canceling to avoid missing events
         await cancelShowHoldInvoice(bot, order, true);
       } else {
         await cancelAddInvoice(bot, order, true);

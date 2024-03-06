@@ -3,8 +3,12 @@ import * as messages from './messages';
 
 import { logger } from '../logger';
 import { MainContext } from './start';
+import {
+  waitPayment,
+  cancelShowHoldInvoice,
+  cancelAddInvoice,
 // @ts-ignore
-import { waitPayment } from './commands';
+} from './commands';
 import { Telegraf } from 'telegraf';
 import { requestPayment, requestWalletAddress } from '../ln/extWallet';
 import { ethers } from 'ethers';
@@ -47,6 +51,7 @@ export const extWalletRequestPayment = async (
         targetUser,
         e as Error
       );
+      await cancelShowHoldInvoice(ctx, order, false);
       return;
     }
     await messages.extWalletPaymentRequestSentMessage(
@@ -105,6 +110,7 @@ export const extWalletRequestAddress = async (
         targetUser,
         e as Error
       );
+      await cancelAddInvoice(ctx, order, false);
       return;
     }
   } catch (error) {
@@ -141,11 +147,7 @@ export const extWalletRequestAddressResponse = async (
     }
 
     await ctx.deleteMessage().catch(() => {});
-    if (ctx.scene) {
-      await ctx.scene.leave();
-    } else if ((ctx as unknown as SceneContext).session?.__scenes) {
-      (ctx as unknown as SceneContext).session.__scenes = {};
-    }
+    await safeSceneLeave(ctx);
 
     await messages.extWalletAddressReceivedMessage(
       ctx,
@@ -159,3 +161,11 @@ export const extWalletRequestAddressResponse = async (
     logger.error(error);
   }
 };
+export async function safeSceneLeave(ctx: MainContext) {
+  if (ctx.scene) {
+    await ctx.scene.leave();
+  } else if ((ctx as unknown as SceneContext).session?.__scenes) {
+    (ctx as unknown as SceneContext).session.__scenes = {};
+  }
+}
+

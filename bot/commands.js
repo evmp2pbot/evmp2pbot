@@ -8,6 +8,7 @@ const {
   settleHoldInvoice,
 } = require('../ln');
 const { Order, User, Dispute } = require('../models');
+const { safeSceneLeave } = require('./commands2');
 const messages = require('./messages');
 const {
   getBtcFiatPrice,
@@ -231,7 +232,7 @@ const cancelAddInvoice = async (ctx, order, job) => {
     let userAction = false;
     if (!job) {
       await ctx.deleteMessage().catch(() => {});
-      await ctx.scene.leave();
+      await safeSceneLeave(ctx);
       userAction = true;
       if (!order) {
         const orderId = !!ctx && ctx.update.callback_query.message.text;
@@ -406,7 +407,7 @@ const cancelShowHoldInvoice = async (ctx, order, job) => {
     let userAction = false;
     if (!job) {
       await ctx.deleteMessage().catch(() => {});
-      await ctx.scene.leave();
+      await safeSceneLeave(ctx);
       userAction = true;
       if (!order) {
         const orderId = !!ctx && ctx.update.callback_query.message.text;
