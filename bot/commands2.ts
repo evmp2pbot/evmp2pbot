@@ -12,7 +12,6 @@ import {
 import { Telegraf } from 'telegraf';
 import { requestPayment, requestWalletAddress } from '../ln/extWallet';
 import { ethers } from 'ethers';
-import { SceneContext } from 'telegraf/scenes';
 import { safeSceneLeave } from './utils';
 
 export const extWalletRequestPayment = async (
