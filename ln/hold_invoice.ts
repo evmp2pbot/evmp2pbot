@@ -1,6 +1,5 @@
 import { randomBytes } from 'crypto';
 import { logger } from '../logger';
-import { getAddressFromSecret } from '../util/patchwallet';
 import { Order } from '../models';
 import { MainContext } from '../bot/start';
 import { payHoldInvoice } from '.';
@@ -15,7 +14,7 @@ const createHoldInvoice = async ({
   try {
     logger.debug(`createHoldInvoice ${amount} ${description}`);
     const secret = randomBytes(32).toString('hex');
-    const address = await getAddressFromSecret(secret);
+    const address = "0x" + randomBytes(20).toString('hex');
     return {
       request: address,
       hash: address,
