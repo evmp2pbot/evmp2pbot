@@ -167,9 +167,6 @@ someone_took_your_order: >
   which there is no risk of freezing funds.
 
 
-  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the ${tokenName()} will return to the seller, putting the buyer at risk. I cannot force the seller to send the ${tokenName()} again.
-
-
   Seller Reputation: ${rate}, days using the bot: ${days}
 
 
@@ -186,9 +183,6 @@ you_took_someone_order: >
 
 
   Please use a fiat payment processor that allows you to send *${order.fiat_amount} ${order.fiat_code}* immediately and in which there is no risk of freezing funds\\.
-
-
-  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the *${order.amount}* $${tokenName()} will return to the seller, putting the buyer at risk and I cannot force the seller to send the ${tokenName()} again\\.
 
 
   If you agree with the above, press the Accept button to continue 👇
@@ -542,9 +536,6 @@ expired_order_to_buyer: >
   🚨🚨🚨 This order is about to expire and must be completed or cancelled
   immediately, if you haven't sent the fiat money yet, you can still cancel with
   the /cancel command.
-
-
-  If you sent the fiat money but the seller refuses to release the ${tokenName()}, you can open a dispute with the /dispute command. The hold invoice that the seller paid has an expiration time and you must resolve this order before it expires or you risk losing your money.
 
 
   If you need help, you can write to the group ${helpGroup}
