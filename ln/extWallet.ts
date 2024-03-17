@@ -102,12 +102,12 @@ async function request(url: string, data: unknown) {
 
 export async function requestPayment({
   telegramId,
-  recipientAddress,
+  recipientTelegramID,
   amount,
   orderId,
 }: {
   telegramId: string;
-  recipientAddress: string;
+  recipientTelegramID: string;
   amount: string;
   orderId: string;
 }) {
@@ -115,10 +115,13 @@ export async function requestPayment({
   ethers.parseEther(amount);
   return await request(REQUEST_PAYMENT_URL, {
     userTelegramID: telegramId,
-    recipientAddress,
+    recipientTelegramID,
     tokenContract: TOKEN_CONTRACT,
     amount,
     message: `To pay ${amount} ${TOKEN_SYMBOL} for order ${orderId}`,
+    withEscrow: true,
+    escrowHoldSeconds:
+      parseInt(process.env.HOLD_INVOICE_CLTV_DELTA || '144') * 10 * 60,
   });
 }
 

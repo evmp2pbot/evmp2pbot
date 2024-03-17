@@ -1,10 +1,9 @@
 import { randomBytes } from 'crypto';
 import { logger } from '../logger';
-import { getAddressFromSecret, transferToken } from '../util/patchwallet';
+import { getAddressFromSecret } from '../util/patchwallet';
 import { Order } from '../models';
 import { MainContext } from '../bot/start';
 import { payHoldInvoice } from '.';
-import { getAddressBalance, listEscrowWalletTx, transferMonitor } from './evm';
 
 const createHoldInvoice = async ({
   description,
@@ -70,7 +69,8 @@ const cancelHoldInvoice = async ({ hash }: { hash: string }) => {
     if (!hash) {
       return;
     }
-    transferMonitor.delete(hash);
+    /*
+    eventMonitor.delete(hash);
     const order = await Order.findOne({ hash });
     if (!order) {
       logger.warn(`No order for escrow wallet ${hash}`);
@@ -96,6 +96,7 @@ const cancelHoldInvoice = async ({ hash }: { hash: string }) => {
         amount: log.args.amount,
       });
     }
+    */
   } catch (error) {
     logger.error(error);
   } finally {

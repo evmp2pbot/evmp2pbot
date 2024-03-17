@@ -509,7 +509,7 @@ const showHoldInvoiceMessage = async (
 };
 
 const onGoingTakeBuyMessage = async (
-  bot: MainContext,
+  bot: Telegraf<MainContext>,
   seller: IUser,
   buyer: IUser,
   order: IOrder,
@@ -591,7 +591,7 @@ const beginTakeSellMessage = async (
 };
 
 const onGoingTakeSellMessage = async (
-  bot: MainContext,
+  bot: Telegraf<MainContext>,
   sellerUser: IUser,
   buyerUser: IUser,
   order: IOrder,
@@ -1017,11 +1017,6 @@ const fiatSentMessages = async (
         buyerUsername: buyer.username,
         order,
       })
-    );
-    await ctx.telegram.sendMessage(
-      seller.tg_id,
-      i18nSeller.t('release_order_cmd'),
-      { parse_mode: 'Markdown' }
     );
   } catch (error) {
     logger.error(error);

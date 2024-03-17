@@ -64,6 +64,7 @@ import {
 } from 'telegraf/scenes';
 import { getI18nGlobalContext } from '../util/i18n';
 import {
+  disputeFromEscrow,
   extWalletRequestAddress,
   extWalletRequestAddressResponse,
   extWalletRequestPayment,
@@ -941,6 +942,17 @@ const initialize = (
         ctx.match[1],
         ctx.match[2]
       );
+    }
+  );
+
+  bot.action(
+    /^disputeFromEscrow\((\w{24})\)$/,
+    userMiddleware,
+    async (ctx: MainContext) => {
+      if (ctx.match === null) {
+        throw new Error('ctx.match should not be null');
+      }
+      await disputeFromEscrow(ctx, bot, ctx.match[1]);
     }
   );
 

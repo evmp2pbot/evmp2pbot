@@ -1,5 +1,7 @@
-import { Order, User } from '../models';
+import { Dispute, Order, User } from '../models';
 import * as messages from './messages';
+// @ts-ignore
+import disputeMessages from './modules/dispute/messages';
 
 import { logger } from '../logger';
 import { MainContext } from './start';
@@ -31,6 +33,10 @@ export const extWalletRequestPayment = async (
     if (!targetUser) {
       return;
     }
+    const buyerUser = await User.findOne({ _id: order.buyer_id });
+    if (!buyerUser) {
+      return;
+    }
 
     if (!(order.status === 'WAITING_PAYMENT')) {
       await messages.invalidDataMessage(ctx, bot, targetUser);
@@ -40,7 +46,7 @@ export const extWalletRequestPayment = async (
     try {
       await requestPayment({
         telegramId: targetUser.tg_id,
-        recipientAddress: order.hash,
+        recipientTelegramID: buyerUser.tg_id,
         amount: order.amount.toString(),
         orderId: order._id.toString(),
       });
@@ -158,6 +164,68 @@ export const extWalletRequestAddressResponse = async (
     );
 
     await waitPayment(ctx, bot, buyer, seller, order, address);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const disputeFromEscrow = async (
+  ctx: MainContext,
+  bot: Telegraf<MainContext>,
+  orderId: string
+) => {
+  try {
+    const order = await Order.findOne({ _id: orderId });
+    if (!order || !['FIAT_SENT', 'ACTIVE'].includes(order.status)) {
+      return;
+    }
+    const buyer = await User.findOne({ _id: order.buyer_id });
+    const seller = await User.findOne({ _id: order.seller_id });
+    if (!buyer || !seller) {
+      return;
+    }
+    let initiator = 'seller';
+
+    (order as any)[`${initiator}_dispute`] = true;
+    order.status = 'DISPUTE';
+    await order.save();
+
+    // If this is a non community order, we may ban the user globally
+    if (order.community_id) {
+      // We increment the number of disputes on both users
+      // If a user disputes is equal to MAX_DISPUTES, we ban the user
+      const buyerDisputes =
+        (await Dispute.countDocuments({
+          $or: [{ buyer_id: buyer._id }, { seller_id: buyer._id }],
+        })) + 1;
+      const sellerDisputes =
+        (await Dispute.countDocuments({
+          $or: [{ buyer_id: seller._id }, { seller_id: seller._id }],
+        })) + 1;
+      if (buyerDisputes >= parseInt(process.env.MAX_DISPUTES || '5', 10)) {
+        buyer.banned = true;
+        await buyer.save();
+      }
+      if (sellerDisputes >= parseInt(process.env.MAX_DISPUTES || '5', 10)) {
+        seller.banned = true;
+        await seller.save();
+      }
+    }
+
+    const dispute = new Dispute({
+      initiator,
+      seller_id: seller._id,
+      buyer_id: buyer._id,
+      community_id: order.community_id,
+      status: 'WAITING_FOR_SOLVER',
+      order_id: order._id,
+    });
+    await dispute.save();
+    // Send message to both users
+    await disputeMessages.beginDispute(ctx, initiator, order, buyer, seller);
+    // Show the dispute button to solvers
+    await disputeMessages.takeDisputeButton(ctx, order);
+    logger.warning(`Order ${order.id}: User ${seller.id} started a dispute!`);
   } catch (error) {
     logger.error(error);
   }

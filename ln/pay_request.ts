@@ -5,15 +5,19 @@ import * as messages from '../bot/messages';
 import { logger } from '../logger';
 import { IOrder } from '../models/order';
 import { MainContext } from '../bot/start';
-import { getAddressBalance } from './evm';
-import { ethers } from 'ethers';
-import { transferToken } from '../util/patchwallet';
+import { State, getEscrowState } from './evm';
 
 const payRequest = async (order: IOrder) => {
   try {
     if (!order.hash || !order.secret) {
       throw new Error(`Order ${order._id.toString()} has no hash`);
     }
+    if ((await getEscrowState(order.hash)) !== State.Closed) {
+      throw new Error(
+        `Order ${order._id.toString()} must be released through external wallet`
+      );
+    }
+    /*
     const to = ethers.getAddress(order.buyer_invoice);
     const balance = await getAddressBalance(order.hash);
     let txHash = 'NONE';
@@ -29,11 +33,12 @@ const payRequest = async (order: IOrder) => {
         txHash = 'USEROPHASH-' + result.userOpHash;
       }
     }
+    */
     return {
       is_expired: false,
       confirmed_at: new Date(),
       id: order.secret,
-      secret: txHash,
+      secret: order.hash,
       fee: 0,
     };
   } catch (error: any) {

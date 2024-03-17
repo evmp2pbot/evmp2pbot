@@ -188,7 +188,7 @@ you_took_someone_order: >
   Please use a fiat payment processor that allows you to send *${order.fiat_amount} ${order.fiat_code}* immediately and in which there is no risk of freezing funds\\.
 
 
-  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime} hours, the *${order.amount}* $${tokenName()} will return to the seller, putting the buyer at risk and I cannot force the seller to send the ${tokenName()} again\\.
+  If, for any reason, your payment processor puts the payment on pause and the funds do not arrive in less than ${expirationTime}, the *${order.amount}* $${tokenName()} will return to the seller, putting the buyer at risk and I cannot force the seller to send the ${tokenName()} again\\.
 
 
   If you agree with the above, press the Accept button to continue 👇
@@ -385,7 +385,7 @@ I_told_seller_you_sent_fiat: >
 
   Once @${sellerUsername} confirms the money was received, the ${order.amount} $${tokenName()} will be released from escrow and sent to your wallet `${order.buyer_invoice}`
 buyer_told_me_that_sent_fiat: >
-  @${buyerUsername} confirmed sending ${order.fiat_amount} ${order.fiat_code} through ${order.payment_method}. Please validate reception and then release the ${order.amount} $${tokenName()} from the escrow.
+  @${buyerUsername} confirmed sending ${order.fiat_amount} ${order.fiat_code} through ${order.payment_method}. Please validate reception and then release the ${order.amount} $${tokenName()} from the escrow at ${extWalletBotHandle}.
 
   You will not be able to create another order until this order has been completed.
 release_order_cmd: /release
