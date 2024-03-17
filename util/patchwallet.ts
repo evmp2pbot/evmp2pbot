@@ -1,7 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import { ensureEnv, lazyMemo } from '.';
-import { TOKEN_CONTRACT, encodeTransferTx } from '../ln/evm';
 import { logger } from '../logger';
 
 const PATCHWALLET_API_BASE = 'https://paymagicapi.com/v1/';
@@ -102,7 +101,6 @@ const pwApi = async <TResult = unknown, TConfig = unknown>(
   ).data;
 
 const PATCHWALLET_ID_PREFIX = ensureEnv('PATCHWALLET_ID_PREFIX');
-const PATCHWALLET_CHAIN_NAME = ensureEnv('PATCHWALLET_CHAIN_NAME');
 const addressCache = new Map<string, string>();
 export async function getAddressFromSecret(secret: string) {
   if (addressCache.has(secret)) {
@@ -123,47 +121,4 @@ export async function getAddressFromSecret(secret: string) {
   }
   addressCache.set(secret, result);
   return result;
-}
-
-async function sendTx({
-  secret,
-  to,
-  value = '0x0',
-  data,
-  delegatecall = 0,
-}: {
-  secret: string;
-  to: string;
-  value?: string;
-  data: string;
-  delegatecall?: 0 | 1;
-}) {
-  return await pwApi<{ userOpHash: string; txHash?: string }>('kernel/tx', {
-    userId: `${PATCHWALLET_ID_PREFIX}${secret}`,
-    chain: PATCHWALLET_CHAIN_NAME,
-    to: [to],
-    value: [value],
-    data: [data],
-    delegatecall,
-    auth: '',
-  }).then(result => {
-    logger.debug('tx result: ' + JSON.stringify(result));
-    return result;
-  });
-}
-
-export async function transferToken({
-  secret,
-  to,
-  amount,
-}: {
-  secret: string;
-  to: string;
-  amount: bigint;
-}) {
-  return await sendTx({
-    secret,
-    to: TOKEN_CONTRACT,
-    data: await encodeTransferTx(to, amount),
-  });
 }
