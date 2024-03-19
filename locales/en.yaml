@@ -861,7 +861,7 @@ extwallet_request_payment_sent: A payment request has been sent to ${extWalletDi
 extwallet_prompt_request_wallet: Please click the button below to receive the $${tokenName()} to your ${extWalletDisplayName}.
 extwallet_prompt_request_wallet_button: Receive via ${extWalletDisplayName}
 extwallet_request_wallet_sent: A wallet address request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and approve the request
-extwallet_received_address: Got wallet address from ${extWalletDisplayName}, receiving $${tokenName()} to your wallet ${address}
+extwallet_received_address: Got wallet address from ${extWalletDisplayName}, you will be receiving $${tokenName()} to your wallet ${address} in this and all future trades.
 
 extwallet_error_user_not_found: It seems you haven't used ${extWalletDisplayName} before
 extwallet_error_not_enough_token: It seems you don't have enough $${tokenName()} in your ${extWalletDisplayName}

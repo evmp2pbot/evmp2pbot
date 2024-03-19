@@ -163,6 +163,8 @@ export const extWalletRequestAddressResponse = async (
       ctx.i18n
     );
 
+    buyer.lightning_address = address;
+    await buyer.save();
     await waitPayment(ctx, bot, buyer, seller, order, address);
   } catch (error) {
     logger.error(error);
