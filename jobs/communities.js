@@ -13,7 +13,7 @@ const deleteCommunity = async bot => {
       if (community.created_at > time) {
         continue;
       }
-      const orders = await Order.count({
+      const orders = await Order.countDocuments({
         created_at: { $gte: time },
         status: 'SUCCESS',
         community_id: community._id,

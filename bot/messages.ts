@@ -1227,7 +1227,7 @@ const badStatusOnCancelOrderMessage = async (ctx: MainContext) => {
 };
 
 const successCancelOrderMessage = async (
-  ctx: MainContext,
+  ctx: Telegraf<MainContext> | MainContext,
   user: IUser,
   order: IOrder,
   i18n: I18nContext
@@ -1243,7 +1243,7 @@ const successCancelOrderMessage = async (
 };
 
 const counterPartyCancelOrderMessage = async (
-  ctx: MainContext,
+  ctx: MainContext | Telegraf<MainContext>,
   user: IUser,
   order: IOrder,
   i18n: I18nContext
@@ -1337,7 +1337,7 @@ const okCooperativeCancelMessage = async (
 };
 
 const refundCooperativeCancelMessage = async (
-  ctx: MainContext,
+  ctx: MainContext | Telegraf<MainContext>,
   user: IUser,
   i18n: I18nContext
 ) => {

@@ -31,6 +31,11 @@
   },
   {
     "inputs": [],
+    "name": "OnlyBeneficiaryCanDispute",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "OnlyBeneficiaryCanTriggerRefund",
     "type": "error"
   },
@@ -41,12 +46,7 @@
   },
   {
     "inputs": [],
-    "name": "OnlySenderCanDispute",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "OnlySenderCanReleaseWithinHoldingPeriod",
+    "name": "OnlySenderCanRelease",
     "type": "error"
   },
   {
@@ -180,6 +180,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "_closeReason",
+    "outputs": [
+      {
+        "internalType": "enum Escrow.CloseReason",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",

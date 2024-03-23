@@ -15,6 +15,7 @@ import { Telegraf } from 'telegraf';
 import { requestPayment, requestWalletAddress } from '../ln/extWallet';
 import { ethers } from 'ethers';
 import { safeSceneLeave } from './utils';
+import { getUserI18nContext } from '../util';
 
 export const extWalletRequestPayment = async (
   ctx: MainContext,
@@ -186,7 +187,7 @@ export const disputeFromEscrow = async (
     if (!buyer || !seller) {
       return;
     }
-    let initiator = 'seller';
+    let initiator = 'buyer';
 
     (order as any)[`${initiator}_dispute`] = true;
     order.status = 'DISPUTE';
@@ -228,6 +229,48 @@ export const disputeFromEscrow = async (
     // Show the dispute button to solvers
     await disputeMessages.takeDisputeButton(ctx, order);
     logger.warning(`Order ${order.id}: User ${seller.id} started a dispute!`);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const orderRefunded = async (
+  bot: Telegraf<MainContext>,
+  orderId: string
+) => {
+  try {
+    const order = await Order.findOne({ _id: orderId });
+
+    if (!order) {
+      return;
+    }
+
+    if (!(order.status === 'ACTIVE' || order.status === 'FIAT_SENT')) {
+      return;
+    }
+
+    const buyer = await User.findOne({ _id: order.buyer_id });
+    if (!buyer) {
+      return;
+    }
+    const seller = await User.findOne({ _id: order.seller_id });
+    if (!seller) {
+      return;
+    }
+
+    const i18nCtxBuyer = await getUserI18nContext(buyer);
+    const i18nCtxSeller = await getUserI18nContext(seller);
+    order.status = 'CANCELED';
+    // We sent a private message to the users
+    await messages.successCancelOrderMessage(bot, buyer, order, i18nCtxBuyer);
+    await messages.counterPartyCancelOrderMessage(
+      bot,
+      seller,
+      order,
+      i18nCtxSeller
+    );
+    logger.info(`Order ${order._id} was cancelled cooperatively!`);
+    await order.save();
   } catch (error) {
     logger.error(error);
   }

@@ -34,7 +34,7 @@ export enum State {
 }
 export enum CloseReason {
   Release,
-  ReleaseExpired,
+  RefundExpired,
   Refund,
   AdminRelease,
   AdminRefund,
@@ -173,6 +173,15 @@ export async function getEscrowState(address: string): Promise<State> {
       .attach(address)
       .connect(provider)
       .getFunction('_state')
+      .call({})
+  );
+}
+export async function getEscrowCloseReason(address: string): Promise<CloseReason> {
+  return Number(
+    await escrowContract
+      .attach(address)
+      .connect(provider)
+      .getFunction('_closeReason')
       .call({})
   );
 }

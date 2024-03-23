@@ -14,9 +14,11 @@ import {
   CloseReason,
   getEscrowState,
   State,
+  getEscrowCloseReason,
 } from './evm';
 import { ContractEvent, Log, Result, ethers } from 'ethers';
 import { Telegraf } from 'telegraf';
+import { orderRefunded } from '../bot/commands2';
 
 export function subscribeToEscrowActions({
   bot,
@@ -53,7 +55,7 @@ export function subscribeToEscrowActions({
           CloseReason[result.reason] || result.reason || '<unknown reason>'
         }`
       );
-      await handleClose(order);
+      await handleClose(order, Number(result.reason));
     }
     if (event.name === 'Dispute') {
       await handleDispute(order);
@@ -79,7 +81,8 @@ export function subscribeToEscrowActions({
         return;
       }
       if (state === State.Closed) {
-        await handleClose(order);
+        const reason = await getEscrowCloseReason(escrowAddress);
+        await handleClose(order, reason);
       } else {
         await handleDispute(order);
       }
@@ -129,7 +132,7 @@ export function subscribeToEscrowActions({
     });
   }
 
-  async function handleClose(order: IOrder) {
+  async function handleClose(order: IOrder, reason: CloseReason) {
     if (unsubscribe) {
       unsubscribe();
     }
@@ -142,11 +145,17 @@ export function subscribeToEscrowActions({
     while ((await getEscrowState(escrowAddress)) !== State.Closed) {
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
-    await require('../bot/commands').release(
-      bot,
-      order._id.toString(),
-      sellerUser
-    );
+    if (reason === CloseReason.Release) {
+      await require('../bot/commands').release(
+        bot,
+        order._id.toString(),
+        sellerUser
+      );
+    } else if (
+      [CloseReason.Refund, CloseReason.RefundExpired].includes(reason)
+    ) {
+      await orderRefunded(bot, order._id.toString());
+    }
   }
 }
 export function subscribeToEscrowOpen({

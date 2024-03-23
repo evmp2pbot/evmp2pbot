@@ -41,11 +41,11 @@ const dispute = async ctx => {
       // We increment the number of disputes on both users
       // If a user disputes is equal to MAX_DISPUTES, we ban the user
       const buyerDisputes =
-        (await Dispute.count({
+        (await Dispute.countDocuments({
           $or: [{ buyer_id: buyer._id }, { seller_id: buyer._id }],
         })) + 1;
       const sellerDisputes =
-        (await Dispute.count({
+        (await Dispute.countDocuments({
           $or: [{ buyer_id: seller._id }, { seller_id: seller._id }],
         })) + 1;
       if (buyerDisputes >= process.env.MAX_DISPUTES) {

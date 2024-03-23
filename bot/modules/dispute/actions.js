@@ -26,10 +26,10 @@ exports.takeDispute = async ctx => {
   const buyer = await User.findOne({ _id: order.buyer_id });
   const seller = await User.findOne({ _id: order.seller_id });
   const initiator = order.buyer_dispute ? 'buyer' : 'seller';
-  const buyerDisputes = await Dispute.count({
+  const buyerDisputes = await Dispute.countDocuments({
     $or: [{ buyer_id: buyer._id }, { seller_id: buyer._id }],
   });
-  const sellerDisputes = await Dispute.count({
+  const sellerDisputes = await Dispute.countDocuments({
     $or: [{ buyer_id: seller._id }, { seller_id: seller._id }],
   });
 
