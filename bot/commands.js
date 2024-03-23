@@ -20,7 +20,6 @@ const ordersActions = require('./ordersActions');
 
 const { resolvLightningAddress } = require('../lnurl/lnurl-pay');
 const { logger } = require('../logger');
-const { subscribeToEscrowOpen } = require('../ln/subscribe_invoice');
 
 const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
   try {
@@ -67,6 +66,8 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
       order.status = 'WAITING_PAYMENT';
       await order.save();
       // We monitor the invoice to know when the seller makes the payment
+      
+      const { subscribeToEscrowOpen } = require('../ln/subscribe_invoice');
       subscribeToEscrowOpen({
         bot,
         orderId: order._id.toString(),
@@ -392,6 +393,7 @@ const showHoldInvoice = async (ctx, bot, order) => {
     await order.save();
 
     // We monitor the invoice to know when the seller makes the payment
+    const { subscribeToEscrowOpen } = require('../ln/subscribe_invoice');
     subscribeToEscrowOpen({
       bot,
       orderId: order._id.toString(),
