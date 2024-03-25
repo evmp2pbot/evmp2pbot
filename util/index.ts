@@ -295,36 +295,6 @@ export const isGroupAdmin = async (
   }
 };
 
-export const deleteOrderFromChannel = async (
-  order: IOrder,
-  telegram: Telegram
-) => {
-  try {
-    let channel = process.env.CHANNEL;
-    if (order.community_id) {
-      const community = await Community.findOne({ _id: order.community_id });
-      if (!community) {
-        return channel;
-      }
-      if (community.order_channels.length === 1) {
-        channel = community.order_channels[0].name;
-      } else {
-        for await (const c of community.order_channels) {
-          if (c.type === order.type) {
-            channel = c.name;
-          }
-        }
-      }
-    }
-    await telegram.deleteMessage(
-      String(channel),
-      Number(order.tg_channel_message1)
-    );
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
 export const getOrderChannel = async (order: IOrder) => {
   let channel = process.env.CHANNEL;
   if (order.community_id) {

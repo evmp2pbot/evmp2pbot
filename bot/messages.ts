@@ -12,6 +12,7 @@ import {
   getUserAge,
   getStars,
   I18nFix,
+  getUserI18nContext,
 } from '../util';
 import { logger } from '../logger';
 import { MainContext } from './start';
@@ -22,6 +23,7 @@ import { IConfig } from '../models/config';
 import { IPendingPayment } from '../models/pending_payment';
 import { IFiat } from '../util/fiatModel';
 import { ExtWalletError } from '../ln/extWallet';
+import { Community, User } from '../models';
 
 const startMessage = async (ctx: MainContext) => {
   try {
@@ -162,7 +164,7 @@ export const extWalletAddressReceivedMessage = async (
 };
 
 const pendingSellMessage = async (
-  ctx: MainContext,
+  ctx: MainContext | Telegraf<MainContext>,
   user: IUser,
   order: IOrder,
   channel: string,
@@ -189,7 +191,7 @@ const pendingSellMessage = async (
 };
 
 const pendingBuyMessage = async (
-  bot: MainContext,
+  bot: MainContext | Telegraf<MainContext>,
   user: IUser,
   order: IOrder,
   channel: string,
@@ -750,57 +752,7 @@ const notOrderMessage = async (ctx: MainContext) => {
 };
 
 const publishBuyOrderMessage = async (
-  bot: MainContext,
-  user: IUser,
-  order: IOrder,
-  i18n: I18nContext,
-  messageToUser: boolean
-) => {
-  try {
-    let publishMessage = `${i18n.t('offer_header', { id: order._id })}\n${
-      order.description
-    }`;
-
-    const channel = await getOrderChannel(order);
-    if (!channel) {
-      logger.error(`Channel not found for order ${order._id}`);
-      return;
-    }
-    // We send the message to the channel
-    const message1 = await bot.telegram.sendMessage(channel, publishMessage, {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: i18n.t('sell_sats', {
-                amount: order.amount,
-                fiatAmount: order.fiat_amount,
-                currency: order.fiat_code,
-              }),
-              callback_data: 'takebuy',
-            },
-          ],
-        ],
-      },
-    });
-    // We save the id of the message in the order
-    order.tg_channel_message1 =
-      message1 && message1.message_id.toString()
-        ? message1.message_id.toString()
-        : null;
-
-    await order.save();
-    if (messageToUser) {
-      // Message to user let know the order was published
-      await pendingBuyMessage(bot, user, order, channel, i18n);
-    }
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const publishSellOrderMessage = async (
-  ctx: MainContext,
+  ctx: MainContext | Telegraf<MainContext>,
   user: IUser,
   order: IOrder,
   i18n: I18nContext,
@@ -810,38 +762,207 @@ const publishSellOrderMessage = async (
     let publishMessage = `${i18n.t('offer_header', { id: order._id })}\n${
       order.description
     }`;
+    if (order.status !== 'PENDING') {
+      publishMessage = `<del>${publishMessage}</del>`;
+      if (order.taken_at) {
+        publishMessage += `\n<i>Order taken at ${new Date(
+          order.taken_at
+        ).toUTCString()}</i>`;
+      } else if (order.status === 'CANCELED') {
+        publishMessage += `\n<i>Order cancelled at ${new Date().toUTCString()}</i>`;
+      }
+    }
+
     const channel = await getOrderChannel(order);
     if (!channel) {
       logger.error(`Channel not found for order ${order._id}`);
       return;
     }
-    // We send the message to the channel
-    const message1 = await ctx.telegram.sendMessage(channel, publishMessage, {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: i18n.t('buy_sats', {
-                amount: order.amount,
-                fiatAmount: order.fiat_amount,
-                currency: order.fiat_code,
-              }),
-              callback_data: 'takesell',
-            },
-          ],
-        ],
-      },
-    });
-    // We save the id of the message in the order
-    order.tg_channel_message1 =
-      message1 && message1.message_id.toString()
-        ? message1.message_id.toString()
-        : null;
+    const replyMarkup =
+      order.status === 'PENDING'
+        ? {
+            inline_keyboard: [
+              [
+                {
+                  text: i18n.t('sell_sats', {
+                    amount: order.amount,
+                    fiatAmount: order.fiat_amount,
+                    currency: order.fiat_code,
+                  }),
+                  callback_data: 'takebuy',
+                },
+              ],
+            ],
+          }
+        : undefined;
+
+    if (order.tg_channel_message1) {
+      try {
+        await ctx.telegram.editMessageText(
+          channel,
+          Number(order.tg_channel_message1),
+          undefined,
+          publishMessage,
+          {
+            parse_mode: 'HTML',
+            reply_markup: replyMarkup,
+          }
+        );
+      } catch (e) {
+        logger.warn(
+          `Failed to edit message for order ${order._id}, sending new one`
+        );
+        order.tg_channel_message1 = null;
+      }
+    }
+    if (!order.tg_channel_message1) {
+      // We send the message to the channel
+      const message1 = await ctx.telegram.sendMessage(channel, publishMessage, {
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup,
+      });
+      // We save the id of the message in the order
+      order.tg_channel_message1 =
+        message1 && message1.message_id.toString()
+          ? message1.message_id.toString()
+          : null;
+    }
+    await order.save();
+    if (messageToUser) {
+      // Message to user let know the order was published
+      await pendingBuyMessage(ctx, user, order, channel, i18n);
+    }
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const publishSellOrderMessage = async (
+  ctx: MainContext | Telegraf<MainContext>,
+  user: IUser,
+  order: IOrder,
+  i18n: I18nContext,
+  messageToUser?: boolean
+) => {
+  try {
+    let publishMessage = `${i18n.t('offer_header', { id: order._id })}\n${
+      order.description
+    }`;
+    if (order.status !== 'PENDING') {
+      publishMessage = `<del>${publishMessage}</del>`;
+      if (order.taken_at) {
+        publishMessage += `\n<i>Order taken at ${new Date(
+          order.taken_at
+        ).toUTCString()}</i>`;
+      } else if (order.status === 'CANCELED') {
+        publishMessage += `\n<i>Order cancelled at ${new Date().toUTCString()}</i>`;
+      }
+    }
+    const channel = await getOrderChannel(order);
+    if (!channel) {
+      logger.error(`Channel not found for order ${order._id}`);
+      return;
+    }
+    const replyMarkup =
+      order.status === 'PENDING'
+        ? {
+            inline_keyboard: [
+              [
+                {
+                  text: i18n.t('buy_sats', {
+                    amount: order.amount,
+                    fiatAmount: order.fiat_amount,
+                    currency: order.fiat_code,
+                  }),
+                  callback_data: 'takesell',
+                },
+              ],
+            ],
+          }
+        : undefined;
+    if (order.tg_channel_message1) {
+      try {
+        await ctx.telegram.editMessageText(
+          channel,
+          Number(order.tg_channel_message1),
+          undefined,
+          publishMessage,
+          {
+            parse_mode: 'HTML',
+            reply_markup: replyMarkup,
+          }
+        );
+      } catch (e) {
+        logger.warn(
+          `Failed to edit message for order ${order._id}, sending new one`
+        );
+        order.tg_channel_message1 = null;
+      }
+    }
+    if (!order.tg_channel_message1) {
+      // We send the message to the channel
+      const message1 = await ctx.telegram.sendMessage(channel, publishMessage, {
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup,
+      });
+      // We save the id of the message in the order
+      order.tg_channel_message1 =
+        message1 && message1.message_id.toString()
+          ? message1.message_id.toString()
+          : null;
+    }
 
     await order.save();
     // Message to user let know the order was published
     if (messageToUser)
       await pendingSellMessage(ctx, user, order, channel, i18n);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const deleteOrderFromChannel = async (
+  order: IOrder,
+  bot: Telegraf<MainContext>
+) => {
+  try {
+    let channel = process.env.CHANNEL;
+    if (order.community_id) {
+      const community = await Community.findOne({ _id: order.community_id });
+      if (!community) {
+        return channel;
+      }
+      if (community.order_channels.length === 1) {
+        channel = community.order_channels[0].name;
+      } else {
+        for await (const c of community.order_channels) {
+          if (c.type === order.type) {
+            channel = c.name;
+          }
+        }
+      }
+    }
+    if (order.status === 'PENDING') {
+      order.status = 'CANCELED';
+    }
+    if (!order.tg_channel_message1) {
+      return;
+    }
+    if (order.type === 'buy') {
+      await publishBuyOrderMessage(
+        bot,
+        new User(),
+        order,
+        await getUserI18nContext({ lang: 'en' })
+      );
+    } else {
+      await publishSellOrderMessage(
+        bot,
+        new User(),
+        order,
+        await getUserI18nContext({ lang: 'en' })
+      );
+    }
   } catch (error) {
     logger.error(error);
   }

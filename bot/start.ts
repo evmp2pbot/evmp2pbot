@@ -14,7 +14,7 @@ import {
   Dispute,
   Config,
 } from '../models';
-import { getCurrenciesWithPrice, deleteOrderFromChannel } from '../util';
+import { getCurrenciesWithPrice } from '../util';
 const {
   commandArgsMiddleware,
   stageMiddleware,
@@ -69,6 +69,7 @@ import {
   extWalletRequestAddressResponse,
   extWalletRequestPayment,
 } from './commands2';
+import { deleteOrderFromChannel } from './messages';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -456,7 +457,7 @@ const initialize = (
         order.canceled_by = ctx.user.id;
         await order.save();
         // We delete the messages related to that order from the channel
-        await deleteOrderFromChannel(order, bot.telegram);
+        await deleteOrderFromChannel(order, bot);
       }
       // we sent a private message to the user
       await messages.successCancelAllOrdersMessage(ctx);

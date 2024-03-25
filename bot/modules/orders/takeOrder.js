@@ -1,7 +1,7 @@
 // @ts-check
 const { logger } = require('../../../logger');
 const { Order } = require('../../../models');
-const { deleteOrderFromChannel } = require('../../../util');
+const { deleteOrderFromChannel } = require('../../messages');
 const messages = require('../../messages');
 const {
   validateUserWaitingOrder,
@@ -59,7 +59,7 @@ exports.takebuy = async (ctx, bot, orderId) => {
     order.taken_at = new Date();
     await order.save();
     // We delete the messages related to that order from the channel
-    await deleteOrderFromChannel(order, bot.telegram);
+    await deleteOrderFromChannel(order, bot);
     await messages.beginTakeBuyMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);
@@ -81,7 +81,7 @@ exports.takesell = async (ctx, bot, orderId) => {
 
     await order.save();
     // We delete the messages related to that order from the channel
-    await deleteOrderFromChannel(order, bot.telegram);
+    await deleteOrderFromChannel(order, bot);
     await messages.beginTakeSellMessage(ctx, bot, user, order);
   } catch (error) {
     logger.error(error);

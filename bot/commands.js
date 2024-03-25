@@ -10,12 +10,8 @@ const {
 const { Order, User, Dispute } = require('../models');
 const { safeSceneLeave } = require('./utils');
 const messages = require('./messages');
-const {
-  getBtcFiatPrice,
-  deleteOrderFromChannel,
-  getUserI18nContext,
-  getFee,
-} = require('../util');
+const { getBtcFiatPrice, getUserI18nContext, getFee } = require('../util');
+const { deleteOrderFromChannel } = require('./messages');
 const ordersActions = require('./ordersActions');
 
 const { resolvLightningAddress } = require('../lnurl/lnurl-pay');
@@ -66,7 +62,7 @@ const waitPayment = async (ctx, bot, buyer, seller, order, buyerInvoice) => {
       order.status = 'WAITING_PAYMENT';
       await order.save();
       // We monitor the invoice to know when the seller makes the payment
-      
+
       const { subscribeToEscrowOpen } = require('../ln/subscribe_invoice');
       subscribeToEscrowOpen({
         bot,
@@ -577,7 +573,7 @@ const cancelOrder = async (ctx, orderId, user) => {
       // we sent a private message to the user
       await messages.successCancelOrderMessage(ctx, user, order, ctx.i18n);
       // We delete the messages related to that order from the channel
-      return await deleteOrderFromChannel(order, ctx.telegram);
+      return await deleteOrderFromChannel(order, ctx);
     }
 
     // If a buyer is taking a sell offer and accidentally touch continue button we
