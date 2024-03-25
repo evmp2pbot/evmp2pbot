@@ -62,7 +62,12 @@ const initBotErrorMessage = async (
 
 const nonHandleErrorMessage = async (ctx: MainContext) => {
   try {
-    await ctx.reply(ctx.i18n.t('non_handle_error'));
+    const tgId = ctx.from?.id;
+    if (tgId) {
+      await ctx.telegram.sendMessage(tgId, ctx.i18n.t('non_handle_error'));
+    } else {
+      await ctx.reply(ctx.i18n.t('non_handle_error'));
+    }
   } catch (error) {
     logger.error(error);
   }
