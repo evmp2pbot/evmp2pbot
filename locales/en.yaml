@@ -49,7 +49,7 @@ non_handle_error: 👤 To use this bot, you need to activate your Telegram
   Username. To activate it open the hamburger menu on the top left and select
   settings -> edit profile -> username
 invoice_payment_request: >
-  An user wants to buy ${order.amount} $${tokenName()} for ${currency}
+  A user wants to buy ${order.amount} $${tokenName()} for ${currency}
   ${order.fiat_amount}.
 
 
@@ -865,10 +865,10 @@ disclaimer: >
   Neither the developers nor the dispute resolvers are responsible for any losses or damages that the user may suffer as a result of using the bot.
 order_frozen: You have frozen the order
 extwallet_prompt_request_payment: Please click the button below to deposit from ${extWalletDisplayName}.
-extwallet_prompt_request_payment_button: Pay via ${extWalletDisplayName}
+extwallet_prompt_request_payment_button: Deposit via ${extWalletDisplayName}
 extwallet_request_payment_sent: A payment request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and authorize the request
 extwallet_prompt_request_wallet: Please click the button below to receive the $${tokenName()} to your ${extWalletDisplayName}.
-extwallet_prompt_request_wallet_button: Receive via ${extWalletDisplayName}
+extwallet_prompt_request_wallet_button: Share address of my ${extWalletDisplayName}
 extwallet_request_wallet_sent: A wallet address request has been sent to ${extWalletDisplayName}, please switch to ${extWalletBotHandle} and approve the request
 extwallet_received_address: Got wallet address from ${extWalletDisplayName}, you will be receiving $${tokenName()} to your wallet ${address} in this and all future trades.
 
