@@ -30,7 +30,7 @@ exports.configure = bot => {
       const args = ctx.message.text.split(' ');
       if (args.length > 1) return next();
       if (ctx.message.chat.type !== 'private') return next();
-      if (await commands.isMaxPending(ctx.user))
+      if (await commands.isMaxPending(ctx.user, 'buy'))
         return await tooManyPendingOrdersMessage(ctx, ctx.user, ctx.i18n);
 
       return await commands.buyWizard(ctx);
@@ -44,7 +44,7 @@ exports.configure = bot => {
       const args = ctx.message.text.split(' ');
       if (args.length > 1) return next();
       if (ctx.message.chat.type !== 'private') return next();
-      if (await commands.isMaxPending(ctx.user))
+      if (await commands.isMaxPending(ctx.user, 'sell'))
         return await tooManyPendingOrdersMessage(ctx, ctx.user, ctx.i18n);
 
       return await commands.sellWizard(ctx);

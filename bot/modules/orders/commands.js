@@ -22,7 +22,7 @@ const sellWizard = async ctx => enterWizard(ctx, ctx.user, 'sell');
 const sell = async ctx => {
   try {
     const user = ctx.user;
-    if (await isMaxPending(user))
+    if (await isMaxPending(user, "sell"))
       return await messages.tooManyPendingOrdersMessage(ctx, user, ctx.i18n);
 
     // Sellers with orders in status = FIAT_SENT, have to solve the order
@@ -93,7 +93,7 @@ const sell = async ctx => {
 const buy = async ctx => {
   try {
     const user = ctx.user;
-    if (await isMaxPending(user))
+    if (await isMaxPending(user, "buy"))
       return await messages.tooManyPendingOrdersMessage(ctx, user, ctx.i18n);
 
     const buyOrderParams = await validateBuyOrder(ctx);
@@ -174,10 +174,11 @@ async function enterWizard(ctx, user, type) {
   await ctx.scene.enter(Scenes.CREATE_ORDER, state);
 }
 
-const isMaxPending = async user => {
+const isMaxPending = async (user, type) => {
   const pendingOrders = await Order.countDocuments({
     status: 'PENDING',
     creator_id: user._id,
+    type,
   });
   // We don't let users create too PENDING many orders
   if (pendingOrders >= parseInt(process.env.MAX_PENDING_ORDERS)) {
