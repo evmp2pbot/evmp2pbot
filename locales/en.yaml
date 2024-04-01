@@ -610,7 +610,7 @@ receive_payment_via: Receive payment via
 pay: Pay
 pay_via: Pay via
 is: is
-trading_volume: 'Trading volume: ${volume} ${tokenName()}'
+trading_volume: '${volume} ${tokenName()} traded'
 by: by
 rate: Rate
 has_successful_trades: ${trades} successful trades
