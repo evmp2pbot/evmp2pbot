@@ -179,9 +179,12 @@ const buildDescription = (
     const username = user.show_username
       ? `@${user.username} ` + i18n.t('is') + ` `
       : ``;
+    /*
     const volumeTraded = user.show_volume_traded
       ? i18n.t('trading_volume', { volume }) + `\n`
       : ``;
+    */
+    const volumeTraded = i18n.t('trading_volume', { volume }) + `\n`
     const priceMarginString =
       !!priceMargin && priceMargin > 0 ? `+${priceMargin}` : priceMargin;
     const priceMarginText = priceMarginString ? `${priceMarginString}%` : ``;
