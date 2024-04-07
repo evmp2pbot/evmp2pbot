@@ -123,6 +123,20 @@ const invoicePaymentRequestMessage = async (
   }
 };
 
+export const extWalletPromptNotEnoughBalanceMessage = async (
+  ctx: MainContext,
+  user: IUser,
+  balance: string | number,
+  i18n: I18nContext
+) => {
+  try {
+    const message = i18n.t('extwallet_prompt_not_enough_balance', { balance });
+    await ctx.telegram.sendMessage(user.tg_id, message);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 export const extWalletPaymentRequestSentMessage = async (
   ctx: MainContext,
   user: IUser,

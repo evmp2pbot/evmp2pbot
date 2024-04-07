@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import { EncryptJWT, SignJWT, jwtDecrypt } from 'jose';
 import { ensureEnv } from '../util';
 import { ethers } from 'ethers';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { TOKEN_CONTRACT, TOKEN_SYMBOL } from './evm';
 import { IOrder } from '../models/order';
 import { logger } from '../logger';
@@ -21,9 +21,11 @@ const KEY = Buffer.from(KEY_STRING, 'hex');
 
 const CALLBACK_URL = ensureEnv('EXTWALLET_CALLBACK_URL');
 const REQUEST_PAYMENT_URL = ensureEnv('EXTWALLET_REQUEST_PAYMENT_URL');
+const CHAIN_NAME = ensureEnv('BALANCE_CHAIN_NAME');
 const REQUEST_WALLET_ADDRESS_URL = ensureEnv(
   'EXTWALLET_REQUEST_WALLET_ADDRESS_URL'
 );
+const REQUEST_GET_BALANCE_URL = ensureEnv('EXTWALLET_REQUEST_GET_BALANCE_URL');
 
 export class ExtWalletError extends Error {
   readonly error: string;
@@ -80,24 +82,29 @@ async function decryptWalletRequestToken(
   }
 }
 
-async function request(url: string, data: unknown) {
-  return await axios
-    .post(url, data, {
-      headers: { Authorization: `Bearer ${await createToken()}` },
-    })
-    .catch(_e => {
-      const e = _e as AxiosError<any>;
-      if (!e.isAxiosError || !e.response) {
-        return Promise.reject(e);
-      }
-      return Promise.reject(
-        new ExtWalletError({
-          status: e.response.status,
-          msg: e.response.data?.msg || 'Unknown error',
-          error: e.response.data?.error || JSON.stringify(e.response.data),
-        })
-      );
-    });
+async function request<T = any>(
+  url: string,
+  data: unknown,
+  config?: Partial<AxiosRequestConfig>
+) {
+  return await axios<T>(url, {
+    method: data ? 'POST' : 'GET',
+    data,
+    headers: { Authorization: `Bearer ${await createToken()}` },
+    ...(config || {}),
+  }).catch(_e => {
+    const e = _e as AxiosError<any>;
+    if (!e.isAxiosError || !e.response) {
+      return Promise.reject(e);
+    }
+    return Promise.reject(
+      new ExtWalletError({
+        status: e.response.status,
+        msg: e.response.data?.msg || 'Unknown error',
+        error: e.response.data?.error || JSON.stringify(e.response.data),
+      })
+    );
+  });
 }
 
 export async function requestPayment({
@@ -122,6 +129,24 @@ export async function requestPayment({
     withEscrow: true,
     escrowHoldSeconds:
       parseInt(process.env.HOLD_INVOICE_CLTV_DELTA || '144') * 10 * 60,
+  });
+}
+
+export async function getBalance({ telegramId }: { telegramId: string }) {
+  return await request<{
+    assets: { contractAddress: string; balance: string }[];
+  }>(REQUEST_GET_BALANCE_URL, undefined, {
+    params: {
+      userTelegramID: telegramId,
+      chain: CHAIN_NAME,
+    },
+  }).then(result => {
+    const assets = result.data.assets;
+    return (
+      assets.find(
+        x => x.contractAddress.toLowerCase() === TOKEN_CONTRACT.toLowerCase()
+      )?.balance || '0'
+    );
   });
 }
 

@@ -878,3 +878,5 @@ extwallet_error_generic: Sorry, we can't send the request to ${extWalletDisplayN
 
 extwallet_error_buy_suggestion: your order is cancelled.
 extwallet_error_sell_suggestion: your order is cancelled.
+
+extwallet_prompt_not_enough_balance: Order can't be published because you have only ${balance} $${tokenName()} in your ${extWalletDisplayName}.

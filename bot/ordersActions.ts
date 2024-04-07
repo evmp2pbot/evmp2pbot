@@ -18,6 +18,7 @@ import { IUser, UserDocument } from '../models/user';
 import { MainContext } from './start';
 import { IFiat } from '../util/fiatModel';
 import { I18nContext } from '@grammyjs/i18n';
+import { getBalance } from '../ln/extWallet';
 
 const createOrder = async (
   i18n: I18nContext,
@@ -105,6 +106,16 @@ const createOrder = async (
     let order;
 
     if (type === 'sell') {
+      const userBalance = await getBalance({ telegramId: user.tg_id });
+      if (parseFloat(userBalance) < amount) {
+        await messages.extWalletPromptNotEnoughBalanceMessage(
+          bot,
+          user,
+          userBalance,
+          i18n
+        );
+        return;
+      }
       order = new Order({
         seller_id: user._id,
         ...baseOrderData,
@@ -184,7 +195,7 @@ const buildDescription = (
       ? i18n.t('trading_volume', { volume }) + `\n`
       : ``;
     */
-    const volumeTraded = i18n.t('trading_volume', { volume }) + `\n`
+    const volumeTraded = i18n.t('trading_volume', { volume }) + `\n`;
     const priceMarginString =
       !!priceMargin && priceMargin > 0 ? `+${priceMargin}` : priceMargin;
     const priceMarginText = priceMarginString ? `${priceMarginString}%` : ``;
