@@ -26,6 +26,7 @@ const REQUEST_WALLET_ADDRESS_URL = ensureEnv(
   'EXTWALLET_REQUEST_WALLET_ADDRESS_URL'
 );
 const REQUEST_GET_BALANCE_URL = ensureEnv('EXTWALLET_REQUEST_GET_BALANCE_URL');
+const REQUEST_DATE_ADDED_URL = ensureEnv('EXTWALLET_REQUEST_DATE_ADDED_URL');
 
 export class ExtWalletError extends Error {
   readonly error: string;
@@ -148,6 +149,16 @@ export async function getBalance({ telegramId }: { telegramId: string }) {
       )?.balance || '0'
     );
   });
+}
+
+export async function getDateAdded({ telegramId }: { telegramId: string }) {
+  return await request<{
+    dateAdded: string;
+  }>(REQUEST_DATE_ADDED_URL, undefined, {
+    params: {
+      userTelegramID: telegramId,
+    },
+  }).then(result => new Date(result.data.dateAdded));
 }
 
 export async function requestWalletAddress({

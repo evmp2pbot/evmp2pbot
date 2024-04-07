@@ -23,6 +23,7 @@ export interface IUser {
   nostr_public_key?: string;
   disputes: number;
   created_at: Date;
+  extwallet_created_at?: Date;
   default_community_id?: string;
 }
 
@@ -49,6 +50,7 @@ const UserSchema = new Schema<IUser>({
   nostr_public_key: { type: String },
   disputes: { type: Number, min: 0, default: 0 },
   created_at: { type: Date, default: Date.now },
+  extwallet_created_at: { type: Date },
   default_community_id: { type: String },
 });
 

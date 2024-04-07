@@ -137,6 +137,19 @@ export const extWalletPromptNotEnoughBalanceMessage = async (
   }
 };
 
+export const extWalletPromptNotActivatedMessage = async (
+  ctx: MainContext,
+  user: IUser,
+  i18n: I18nContext
+) => {
+  try {
+    const message = i18n.t('extwallet_prompt_not_activated');
+    await ctx.telegram.sendMessage(user.tg_id, message);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 export const extWalletPaymentRequestSentMessage = async (
   ctx: MainContext,
   user: IUser,

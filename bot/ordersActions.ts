@@ -18,7 +18,7 @@ import { IUser, UserDocument } from '../models/user';
 import { MainContext } from './start';
 import { IFiat } from '../util/fiatModel';
 import { I18nContext } from '@grammyjs/i18n';
-import { getBalance } from '../ln/extWallet';
+import { getBalance, getDateAdded } from '../ln/extWallet';
 
 const createOrder = async (
   i18n: I18nContext,
@@ -102,6 +102,17 @@ const createOrder = async (
       community_id,
       is_public: isPublic,
     };
+    if (!user.extwallet_created_at) {
+      const extWalletCreatedAt = await getDateAdded({
+        telegramId: user.tg_id,
+      }).catch(() => undefined);
+      if (!extWalletCreatedAt || extWalletCreatedAt.getFullYear() < 2000) {
+        await messages.extWalletPromptNotActivatedMessage(bot, user, i18n);
+        return;
+      }
+      user.extwallet_created_at = extWalletCreatedAt;
+      await user.save();
+    }
 
     let order;
 
@@ -227,6 +238,7 @@ const buildDescription = (
     }
 
     const ageInDays = getUserAge(user);
+    const ageInDaysExtWallet = getUserAge(user, user.extwallet_created_at);
 
     let description =
       `${username}${action} ${amountText}$` + i18n.t('sats') + `\n`;
@@ -236,6 +248,7 @@ const buildDescription = (
     description += `${publisher}:\n`;
     description += i18n.t('has_successful_trades', { trades }) + `\n`;
     description += i18n.t('user_age', { days: ageInDays }) + `\n`;
+    description += i18n.t('user_age_extwallet', { days: ageInDaysExtWallet }) + `\n`;
     description += volumeTraded;
     // description += hashtag;
     // description += tasaText;

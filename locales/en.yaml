@@ -614,6 +614,7 @@ by: by
 rate: Rate
 has_successful_trades: ${trades} successful trades
 user_age: ${pluralize(days, 'day', 'days')} using the bot
+user_age_extwallet: ${pluralize(days, 'day', 'days')} using ${extWalletDisplayName}
 price: Price
 for: For
 generic_error: An error occurred
@@ -879,3 +880,4 @@ extwallet_error_buy_suggestion: your order is cancelled.
 extwallet_error_sell_suggestion: your order is cancelled.
 
 extwallet_prompt_not_enough_balance: Order can't be published because you have only ${balance} $${tokenName()} in your ${extWalletDisplayName}.
+extwallet_prompt_not_activated: It seems you haven't used ${extWalletDisplayName} before, you need to first activate ${extWalletDisplayName} at ${extWalletBotHandle} before you can publish an order.

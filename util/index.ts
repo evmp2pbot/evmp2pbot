@@ -460,8 +460,8 @@ export const holdInvoiceExpirationInSecs = () => {
 };
 
 // Returns the user age in days
-export const getUserAge = (user: IUser) => {
-  const userCreationDate = new Date(user.created_at);
+export const getUserAge = (user: IUser, userCreationDate?: Date) => {
+  userCreationDate = userCreationDate || new Date(user.created_at);
   const today = new Date();
   const ageInDays = Math.floor(
     (today.getTime() - userCreationDate.getTime()) / (1000 * 3600 * 24)
