@@ -566,10 +566,9 @@ buyer_havent_add_invoice: '😔 Buyer has not sent me the invoice to receive the
 buyer_havent_add_invoice_to_admin_channel: 'Buyer @${username} took the order
   ID: ${orderId} but has not sent the invoice where to receive ${tokenName()},
   time has expired, the order has being republished.'
-havent_paid_invoice: '🤨 You have not paid the invoice to sell ${tokenName()}
+havent_paid_invoice: 'You have not fulfilled ${tokenName()}
   for the order ID: ${orderId}'
-seller_havent_paid_invoice: '😔 Seller has not paid the invoice for your
-  purchase ID: ${orderId}, the operation was cancelled.'
+seller_havent_paid_invoice: 'Seller cannot fulfill your purchase ID: ${orderId}, the operation was cancelled.'
 seller_havent_add_invoice_to_admin_channel: 'Seller @${username} has not paid
   the invoice of order ID: ${orderId} time lapse ended and the order has been
   published again.'
