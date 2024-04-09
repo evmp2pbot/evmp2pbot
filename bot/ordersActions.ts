@@ -72,6 +72,17 @@ const createOrder = async (
 
     const fiatAmountData = getFiatAmountData(fiatAmount);
 
+    if (!user.extwallet_created_at) {
+      const extWalletCreatedAt = await getDateAdded({
+        telegramId: user.tg_id,
+      }).catch(() => undefined);
+      if (!extWalletCreatedAt || extWalletCreatedAt.getFullYear() < 2000) {
+        await messages.extWalletPromptNotActivatedMessage(bot, user, i18n);
+        return;
+      }
+      user.extwallet_created_at = extWalletCreatedAt;
+      await user.save();
+    }
     const baseOrderData = {
       ...fiatAmountData,
       amount,
@@ -102,17 +113,6 @@ const createOrder = async (
       community_id,
       is_public: isPublic,
     };
-    if (!user.extwallet_created_at) {
-      const extWalletCreatedAt = await getDateAdded({
-        telegramId: user.tg_id,
-      }).catch(() => undefined);
-      if (!extWalletCreatedAt || extWalletCreatedAt.getFullYear() < 2000) {
-        await messages.extWalletPromptNotActivatedMessage(bot, user, i18n);
-        return;
-      }
-      user.extwallet_created_at = extWalletCreatedAt;
-      await user.save();
-    }
 
     let order;
 

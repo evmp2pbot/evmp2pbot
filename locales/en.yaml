@@ -226,12 +226,10 @@ received_less_than_expected: I received less than ${amount} ${tokenName()} for
   ${tokenName()} to continue.
 sell_success: >
   Your trade with @${buyerUsername} has been completed 🎉
-
-
-  Please qualify @${buyerUsername}
 funds_released: >
   @${sellerUsername} already released the ${order.amount} $${tokenName()} from escrow\\. You can expect the tokens in your wallet `${order.buyer_invoice}` any minute now\\.
-rate_counterpart: '-👇-'
+rate_counterpart_new: 'Please rate @${username}:'
+rate_counterpart_exist: 'You already rated @${username} in a prior trade, please update your rating:'
 cant_process_order: This order cannot be processed, please check the ID is correct.
 cant_release_order: This order cannot be released, the buyer has not sent an invoice where to pay
 no_id_related: You do not have any order associated with this ID.
@@ -445,9 +443,6 @@ seller_released: 💸 Seller has already released the ${tokenName()}, you must
   wait for your invoice to be paid.
 your_purchase_is_completed: >
   Your trade with @${sellerUsername} has been completed 🎉
-
-
-  Please qualify @${sellerUsername}
 problem_getting_price: There is a problem accessing this coin's price, please
   try later. If the problem persists, please get in touch with an administrator.
 update_user_setting: I have modify the field ${field} to ${newState}

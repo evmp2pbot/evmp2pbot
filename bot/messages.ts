@@ -16,7 +16,7 @@ import {
 } from '../util';
 import { logger } from '../logger';
 import { MainContext } from './start';
-import { IUser, UserDocument } from '../models/user';
+import { IUser, UserDocument, UserReview2 } from '../models/user';
 import { IOrder } from '../models/order';
 import { I18nContext } from '@grammyjs/i18n';
 import { IConfig } from '../models/config';
@@ -730,25 +730,46 @@ const releasedSatsMessage = async (
 
 const rateUserMessage = async (
   bot: MainContext,
-  caller: IUser,
+  caller: UserDocument,
   order: IOrder,
   i18n: I18nContext
 ) => {
   try {
+    const targetId =
+      order.buyer_id === caller._id.toString()
+        ? order.seller_id
+        : order.buyer_id;
+    const targetUser = await User.findOne({ _id: targetId });
+    const existingReview = await UserReview2.findOne({
+      source: caller._id,
+      target: targetId,
+    });
     const starButtons = [];
     for (let num = 5; num > 0; num--) {
       starButtons.push([
         {
-          text: '⭐'.repeat(num),
+          text: (!existingReview || existingReview.rating !== num
+            ? '⭐'
+            : '🌟'
+          ).repeat(num),
           callback_data: `showStarBtn(${num},${order._id})`,
         },
       ]);
     }
-    await bot.telegram.sendMessage(caller.tg_id, i18n.t('rate_counterpart'), {
-      reply_markup: {
-        inline_keyboard: starButtons,
-      },
-    });
+    await bot.telegram.sendMessage(
+      caller.tg_id,
+      i18n.t(
+        existingReview ? 'rate_counterpart_exist' : 'rate_counterpart_new',
+        {
+          username: targetUser?.username,
+        }
+      ),
+      {
+        reply_markup: {
+          inline_keyboard: starButtons,
+        },
+      }
+    );
   } catch (error) {
     logger.error(error);
   }

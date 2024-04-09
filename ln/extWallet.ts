@@ -142,7 +142,7 @@ export async function getBalance({ telegramId }: { telegramId: string }) {
       chain: CHAIN_NAME,
     },
   }).then(result => {
-    const assets = result.data.assets;
+    const assets = result.data.assets || [];
     return (
       assets.find(
         x => x.contractAddress.toLowerCase() === TOKEN_CONTRACT.toLowerCase()

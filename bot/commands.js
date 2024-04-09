@@ -183,8 +183,10 @@ const rateUser = async (ctx, bot, rating, orderId) => {
     const seller = await User.findOne({ _id: order.seller_id });
 
     let targetUser = buyer;
+    let fromUser = seller;
     if (callerId == buyer.tg_id) {
       targetUser = seller;
+      fromUser = buyer;
     }
 
     // User can only rate other after a successful exchange
@@ -193,36 +195,7 @@ const rateUser = async (ctx, bot, rating, orderId) => {
       return;
     }
 
-    await saveUserReview(targetUser, rating);
-  } catch (error) {
-    logger.error(error);
-  }
-};
-
-const saveUserReview = async (targetUser, rating) => {
-  try {
-    let totalReviews = targetUser.total_reviews
-      ? targetUser.total_reviews
-      : targetUser.reviews.length;
-    totalReviews++;
-
-    const oldRating = targetUser.total_rating;
-    let lastRating = targetUser.reviews.length
-      ? targetUser.reviews[targetUser.reviews.length - 1].rating
-      : 0;
-
-    lastRating = targetUser.last_rating ? targetUser.last_rating : lastRating;
-
-    // newRating is an average of all the ratings given to the user.
-    // Its formula is based on the iterative method to compute mean,
-    // as in:
-    // https://math.stackexchange.com/questions/2148877/iterative-calculation-of-mean-and-standard-deviation
-    const newRating = oldRating + (lastRating - oldRating) / totalReviews;
-    targetUser.total_rating = newRating;
-    targetUser.last_rating = rating;
-    targetUser.total_reviews = totalReviews;
-
-    await targetUser.save();
+    await require('./commands2').saveUserReview(targetUser, fromUser, rating);
   } catch (error) {
     logger.error(error);
   }
@@ -727,7 +700,6 @@ const release = async (ctx, orderId, user) => {
 
 module.exports = {
   rateUser,
-  saveUserReview,
   cancelAddInvoice,
   waitPayment,
   addInvoice,

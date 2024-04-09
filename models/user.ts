@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types, Schema } from 'mongoose';
 
 interface UserReview {
   rating: number;
@@ -54,6 +54,24 @@ const UserSchema = new Schema<IUser>({
   default_community_id: { type: String },
 });
 
+interface IUserReview2 {
+  source: Types.ObjectId;
+  target: Types.ObjectId;
+  rating: number;
+  reviewed_at: Date;
+}
+const UserReview2Schema = new Schema<IUserReview2>({
+  source: { type: mongoose.Schema.Types.ObjectId, required: true },
+  target: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+  rating: { type: Number, min: 0, max: 5, default: 0 },
+  reviewed_at: { type: Date, default: Date.now },
+});
+UserReview2Schema.index({ source: 1, target: 1 }, { unique: true });
+
 const Model = mongoose.model<IUser>('User', UserSchema);
-export type UserDocument = ReturnType<(typeof Model)['hydrate']>;
+export const UserReview2 = mongoose.model<IUserReview2>(
+  'UserReview2',
+  UserReview2Schema
+);
+export type UserDocument = ReturnType<typeof Model['hydrate']>;
 export default Model;

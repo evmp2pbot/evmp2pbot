@@ -16,6 +16,7 @@ import { requestPayment, requestWalletAddress } from '../ln/extWallet';
 import { ethers } from 'ethers';
 import { safeSceneLeave } from './utils';
 import { getUserI18nContext } from '../util';
+import { UserDocument, UserReview2 } from '../models/user';
 
 export const extWalletRequestPayment = async (
   ctx: MainContext,
@@ -271,6 +272,40 @@ export const orderRefunded = async (
     );
     logger.info(`Order ${order._id} was cancelled cooperatively!`);
     await order.save();
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export const saveUserReview = async (
+  targetUser: UserDocument,
+  sourceUser: UserDocument,
+  rating: number
+) => {
+  try {
+    const reviews = await UserReview2.find({ target: targetUser._id });
+    let review = reviews.find(x => x.source.toString().toLowerCase() === sourceUser._id.toString().toLowerCase());
+    if (!review) {
+      review = new UserReview2({
+        source: sourceUser._id,
+        target: targetUser._id,
+        rating,
+        reviewed_at: new Date(),
+      });
+      reviews.push(review);
+    }
+    const totalReviews = reviews.length;
+    review.rating = rating;
+    review.reviewed_at = new Date();
+    await review.save();
+
+    const newRating =
+      reviews.map(x => x.rating).reduce((a, b) => a + b, 0) / totalReviews;
+    targetUser.total_rating = newRating;
+    targetUser.last_rating = targetUser.total_rating || 0;
+    targetUser.total_reviews = totalReviews;
+
+    await targetUser.save();
   } catch (error) {
     logger.error(error);
   }
