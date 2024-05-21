@@ -5,7 +5,6 @@ const messages = require('./messages');
 const { Order, User, Community } = require('../models');
 const { isIso4217, isDisputeSolver } = require('../util');
 const { logger } = require('../logger');
-const { Telegraf } = require('telegraf');
 
 // We look in database if the telegram user exists,
 // if not, it creates a new user
@@ -331,7 +330,7 @@ const validateTakeSellOrder = async (ctx, bot, user, order) => {
  * @param {Object} bot - The bot object.
  * @param {import('../models/user').IUser} user - The user object.
  * @param {import('../models/order').IOrder} order - The order object to be validated.
- * @return {boolean} Returns true if the order is valid for taking, false otherwise.
+ * @return {Promise<boolean>} Returns true if the order is valid for taking, false otherwise.
  */
 const validateTakeBuyOrder = async (ctx, bot, user, order) => {
   try {
