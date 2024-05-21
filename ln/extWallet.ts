@@ -139,7 +139,7 @@ export async function getBalance({ telegramId }: { telegramId: string }) {
     const assets = result.data.assets || [];
     return (
       assets.find(
-        x => x.contractAddress.toLowerCase() === TOKEN_CONTRACT.toLowerCase()
+        x => x.contractAddress?.toLowerCase() === TOKEN_CONTRACT.toLowerCase()
       )?.balance || '0'
     );
   });
