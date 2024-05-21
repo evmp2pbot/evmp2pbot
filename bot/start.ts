@@ -239,7 +239,7 @@ const initialize = (
         }
         await ctx.deleteMessage();
         const newUpdate: Update = {
-          update_id: Date.now(),
+          update_id: ctx.update.update_id + 1,
           callback_query: {
             id: Date.now().toString(),
             chat_instance: String(ctx.chat?.id),
