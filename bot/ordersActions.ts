@@ -117,7 +117,12 @@ const createOrder = async (
     let order;
 
     if (type === 'sell') {
-      const userBalance = await getBalance({ telegramId: user.tg_id });
+      const userBalance = await getBalance({ telegramId: user.tg_id }).catch(
+        e => {
+          logger.error('Failed to get balance:', e.response?.data || e);
+          return '0';
+        }
+      );
       if (parseFloat(userBalance) < amount) {
         await messages.extWalletPromptNotEnoughBalanceMessage(
           bot,
@@ -248,7 +253,8 @@ const buildDescription = (
     description += `${publisher}:\n`;
     description += i18n.t('has_successful_trades', { trades }) + `\n`;
     description += i18n.t('user_age', { days: ageInDays }) + `\n`;
-    description += i18n.t('user_age_extwallet', { days: ageInDaysExtWallet }) + `\n`;
+    description +=
+      i18n.t('user_age_extwallet', { days: ageInDaysExtWallet }) + `\n`;
     description += volumeTraded;
     // description += hashtag;
     // description += tasaText;
