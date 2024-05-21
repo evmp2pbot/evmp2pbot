@@ -185,7 +185,7 @@ export async function getEscrowCloseReason(address: string): Promise<CloseReason
       .call({})
   );
 }
-function getTokenSymbol() {
+export function getTokenSymbol() {
   if (!TOKEN_SYMBOL) {
     TOKEN_SYMBOL = 'TOKEN';
     contract

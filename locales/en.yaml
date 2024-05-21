@@ -64,25 +64,27 @@ invoice_payment_request: >
 
   This order will expire in ${expirationTime} minutes.
 pending_sell: >
-  Your offer is now active in the ${channel} channel.
+  Your offer is now active.
 
-  Please wait until an interested user picks up the offer.
-
-  Otherwise it will expire in ${orderExpirationWindow} hours.
+  It will expire in ${orderExpirationWindow} hours if no one takes it.
 
 
-  You can cancel this order before a user picks it up by executing the command below 👇
+  Please send the link below to anyone who wants to pick up your offer 👇
+
+
+  ${link}
 cancel_order_cmd: |
   /cancel ${orderId}
 pending_buy: >
-  Your offer is now active in the ${channel} channel.
+  Your offer is now active.
 
-  Please wait until an interested user picks up the offer.
-
-  Otherwise it will expire in ${orderExpirationWindow} hours.
+  It will expire in ${orderExpirationWindow} hours if no one takes it.
 
 
-  You can cancel this order before a user picks it up by executing the command below 👇
+  Please send the link below to anyone who wants to pick up your offer 👇
+
+
+  ${link}
 offer_header: 'Offer (:${id}:):'
 must_be_int: ${fieldName} must be a number
 must_be_numeric: ${fieldName} must be numeric

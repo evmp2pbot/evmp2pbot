@@ -24,6 +24,7 @@ import { IPendingPayment } from '../models/pending_payment';
 import { IFiat } from '../util/fiatModel';
 import { ExtWalletError } from '../ln/extWallet';
 import { Community, User } from '../models';
+import { getTokenSymbol } from '../ln/evm';
 
 const startMessage = async (ctx: MainContext) => {
   try {
@@ -205,12 +206,28 @@ const pendingSellMessage = async (
       i18n.t('pending_sell', {
         channel,
         orderExpirationWindow: Math.round(orderExpirationWindow),
-      })
-    );
-    await ctx.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('cancel_order_cmd', { orderId: order._id }),
-      { parse_mode: 'MarkdownV2' }
+        link: `<a href="https://t.me/${
+          ctx.botInfo?.username
+        }/order?startapp=${order._id?.toString()}">Buy ${
+          order.amount
+        } $${getTokenSymbol()} for ${numberFormat(
+          order.fiat_code,
+          order.fiat_amount
+        )} ${order.fiat_code}</a>`,
+      }),
+      {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: i18n.t('cancel'),
+                callback_data: `cancel ${order._id?.toString()}`,
+              },
+            ],
+          ],
+        },
+      }
     );
   } catch (error) {
     logger.error(error);
@@ -218,7 +235,7 @@ const pendingSellMessage = async (
 };
 
 const pendingBuyMessage = async (
-  bot: MainContext | Telegraf<MainContext>,
+  ctx: MainContext | Telegraf<MainContext>,
   user: IUser,
   order: IOrder,
   channel: string,
@@ -227,17 +244,33 @@ const pendingBuyMessage = async (
   try {
     const orderExpirationWindow =
       Number(process.env.ORDER_PUBLISHED_EXPIRATION_WINDOW) / 60 / 60;
-    await bot.telegram.sendMessage(
+    await ctx.telegram.sendMessage(
       user.tg_id,
       i18n.t('pending_buy', {
         channel,
         orderExpirationWindow: Math.round(orderExpirationWindow),
-      })
-    );
-    await bot.telegram.sendMessage(
-      user.tg_id,
-      i18n.t('cancel_order_cmd', { orderId: order._id }),
-      { parse_mode: 'MarkdownV2' }
+        link: `<a href="https://t.me/${
+          ctx.botInfo?.username
+        }?/order?startapp=${order._id?.toString()}">Sell ${
+          order.amount
+        } $${getTokenSymbol()} for ${numberFormat(
+          order.fiat_code,
+          order.fiat_amount
+        )} ${order.fiat_code}</a>`,
+      }),
+      {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: i18n.t('cancel'),
+                callback_data: `cancel ${order._id?.toString()}`,
+              },
+            ],
+          ],
+        },
+      }
     );
   } catch (error) {
     logger.error(error);

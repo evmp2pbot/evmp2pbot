@@ -70,6 +70,7 @@ import {
   extWalletRequestPayment,
 } from './commands2';
 import { deleteOrderFromChannel } from './messages';
+import { Update } from 'telegraf/types';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -228,6 +229,36 @@ const initialize = (
       }
       const tgUser = ctx.update.message.from;
       if (!tgUser.username) return await messages.nonHandleErrorMessage(ctx);
+
+      const m = /^\/start (takebuy|takesell)_(\w+)$/.exec(
+        ctx.update.message.text
+      );
+      if (m) {
+        if (!(await validateUser(ctx, true))) {
+          return;
+        }
+        await ctx.deleteMessage();
+        const newUpdate: Update = {
+          update_id: Date.now(),
+          callback_query: {
+            id: Date.now().toString(),
+            chat_instance: String(ctx.chat?.id),
+            from: tgUser,
+            message: {
+              message_id: ctx.update.message.message_id,
+              from: tgUser,
+              chat: ctx.update.message.chat,
+              date: Date.now(),
+              text: `:${m[2]}:`,
+            },
+            data: m[1],
+          },
+        };
+        setTimeout(() => {
+          bot.handleUpdate(newUpdate).catch(err => logger.error(err));
+        }, 0);
+        return;
+      }
 
       await messages.startMessage(ctx);
       await validateUser(ctx, true);
@@ -441,6 +472,24 @@ const initialize = (
       }
     } catch (error) {
       logger.error(error);
+    }
+  });
+  bot.action(/cancel (\w+)/, userMiddleware, async (ctx: MainContext) => {
+    const orderId = ctx.match?.[1];
+    if (!orderId) {
+      console.error('No order id');
+      await ctx.deleteMessage();
+      return;
+    }
+    try {
+      await cancelOrder(ctx, orderId, ctx.user);
+    } catch (error) {
+      logger.error(error);
+      return;
+    }
+    const order = await Order.findOne({ _id: orderId });
+    if (!order || order.status === 'CANCELED') {
+      await ctx.deleteMessage().catch(() => null);
     }
   });
 

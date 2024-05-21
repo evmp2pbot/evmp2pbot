@@ -1,15 +1,9 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-
 import { EncryptJWT, SignJWT, jwtDecrypt } from 'jose';
 import { ensureEnv } from '../util';
 import { ethers } from 'ethers';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { TOKEN_CONTRACT, TOKEN_SYMBOL } from './evm';
 import { IOrder } from '../models/order';
-import { logger } from '../logger';
-import { Order } from '../models';
-import { Telegraf } from 'telegraf';
 import { MainContext } from '../bot/start';
 import { CallbackQuery, Message } from 'telegraf/types';
 
@@ -68,7 +62,7 @@ async function encryptWalletRequestToken(update: CallbackQuery.DataQuery) {
     .setExpirationTime('360s')
     .encrypt(KEY);
 }
-async function decryptWalletRequestToken(
+export async function decryptWalletRequestToken(
   token: string
 ): Promise<CallbackQuery.DataQuery | null> {
   try {
@@ -194,48 +188,5 @@ export async function requestWalletAddress({
       message: msg,
       data: '',
     })}`,
-  });
-}
-
-const app = express();
-
-// app.set('trust proxy', 1);
-
-app.use(bodyParser.json({}));
-
-let bot: Telegraf<MainContext>;
-
-app.post('/:token', (req, res) => {
-  res.json({ msg: 'It works!' });
-  (async () => {
-    if (!bot) {
-      return;
-    }
-    const update = await decryptWalletRequestToken(req.params.token);
-    if (!update) {
-      return;
-    }
-    const walletAddress = req.body?.walletAddress;
-    if (!walletAddress || !ethers.isAddress(walletAddress)) {
-      return;
-    }
-    const order = await Order.findById(update.id);
-    if (!order) {
-      return;
-    }
-    update.data = `extWalletRequestAddressResponse(${order._id},${walletAddress})`;
-    await bot.handleUpdate({ update_id: 1, callback_query: update });
-  })().catch(e =>
-    logger.error(`Error when handling callback: ${e?.toString()} ${e?.stack}`)
-  );
-});
-
-export function startCallbackServer(botInstance: Telegraf<MainContext>) {
-  bot = botInstance;
-  const port = parseInt(process.env.PORT || '') || 3000;
-  const host = process.env.HOST || '0.0.0.0';
-
-  app.listen(port, host, function () {
-    logger.info(`Callback server listening on ${host}:${port}`);
   });
 }
