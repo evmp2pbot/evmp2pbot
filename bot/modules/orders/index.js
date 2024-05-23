@@ -74,8 +74,12 @@ exports.configure = bot => {
     takeOrderValidation,
     async ctx => {
       const text = ctx.update.callback_query.message.text;
+      console.log('takesell', text);
       const orderId = extractId(text);
-      if (!orderId) return;
+      if (!orderId) {
+        logger.error('takesell: Invalid order id');
+        return;
+      }
       await takesell(ctx, bot, orderId);
     }
   );
