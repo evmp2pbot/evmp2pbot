@@ -8,7 +8,7 @@ import { Telegraf } from 'telegraf';
 import { MainContext } from '../bot/start';
 import { decryptWalletRequestToken } from './extWallet';
 import { getTokenSymbol } from './evm';
-import { getUserAge } from '../util';
+import { getStars, getUserAge } from '../util';
 
 const app = express();
 // app.set('trust proxy', 1);
@@ -49,6 +49,8 @@ app.get('/api/order/:id', async (req, res) => {
     if (!creator) {
       return res.status(404).json({ error: 'Creator not found' });
     }
+    const totalRating = creator.total_rating;
+    const totalReviews = creator.total_reviews;
     return res.json({
       tokenSymbol: getTokenSymbol(),
       creator: creator.username,
@@ -63,6 +65,7 @@ app.get('/api/order/:id', async (req, res) => {
       daysBot: getUserAge(creator),
       daysWallet: getUserAge(creator, creator.extwallet_created_at),
       botHandle: bot.botInfo?.username,
+      rating: totalReviews ? getStars(totalRating, totalReviews) : 'N/A',
     });
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' });
