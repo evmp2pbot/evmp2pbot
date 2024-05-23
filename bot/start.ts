@@ -255,6 +255,8 @@ const initialize = (
           },
         };
         setTimeout(() => {
+          console.log('newUpdate');
+          console.log(JSON.stringify(newUpdate));
           bot.handleUpdate(newUpdate).catch(err => logger.error(err));
         }, 0);
         return;
