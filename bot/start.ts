@@ -255,7 +255,7 @@ const initialize = (
               message_id: ctx.update.message.message_id,
               from: ctx.update.message.from,
               chat: ctx.update.message.chat,
-              date: Date.now(),
+              date: ctx.update.message.date,
               text: `:${m[2]}:`,
             },
             data: m[1],
