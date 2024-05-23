@@ -237,16 +237,16 @@ const initialize = (
         if (!(await validateUser(ctx, true))) {
           return;
         }
-        await ctx.deleteMessage();
+        const chatId = ctx.chat?.id || ctx.from?.id || 0;
         const newUpdate: Update = {
           update_id: ctx.update.update_id + 1,
           callback_query: {
             id: Date.now().toString(),
-            chat_instance: String(ctx.chat?.id),
+            chat_instance: String(chatId),
             from: tgUser,
             message: {
               message_id: ctx.update.message.message_id,
-              from: tgUser,
+              from: ctx.update.message.from,
               chat: ctx.update.message.chat,
               date: Date.now(),
               text: `:${m[2]}:`,
@@ -257,7 +257,16 @@ const initialize = (
         setTimeout(() => {
           console.log('newUpdate');
           console.log(JSON.stringify(newUpdate));
-          bot.handleUpdate(newUpdate).catch(err => logger.error(err));
+          bot
+            .handleUpdate(newUpdate)
+            .catch(err => logger.error(err))
+            .then(() =>
+              ctx.telegram.deleteMessage(
+                chatId,
+                newUpdate.callback_query.message?.message_id || 0
+              )
+            )
+            .catch(() => {});
         }, 0);
         return;
       }
