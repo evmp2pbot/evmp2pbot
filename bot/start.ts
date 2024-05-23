@@ -174,7 +174,13 @@ const initialize = (
 
   // Can't use persistent store here, session object may contain functions
   bot.use(session());
-  bot.use(limit());
+  const limitMiddleware = limit();
+  bot.use(async (ctx, next) => {
+    if ('__synthesized' in ctx.update) {
+      return next();
+    }
+    return limitMiddleware(ctx, next);
+  });
   bot.use(i18n.middleware());
   // bot.use(stageMiddleware());
   const stage = stageMiddleware();
@@ -239,6 +245,7 @@ const initialize = (
         }
         const chatId = ctx.chat?.id || ctx.from?.id || 0;
         const newUpdate: Update = {
+          ...{ __synthesized: true },
           update_id: ctx.update.update_id + 1,
           callback_query: {
             id: Date.now().toString(),
@@ -254,19 +261,9 @@ const initialize = (
             data: m[1],
           },
         };
+        await ctx.deleteMessage().catch(() => {});
         setTimeout(() => {
-          console.log('newUpdate');
-          console.log(JSON.stringify(newUpdate));
-          bot
-            .handleUpdate(newUpdate)
-            .catch(err => logger.error(err))
-            .then(() =>
-              ctx.telegram.deleteMessage(
-                chatId,
-                newUpdate.callback_query.message?.message_id || 0
-              )
-            )
-            .catch(() => {});
+          bot.handleUpdate(newUpdate).catch(err => logger.error(err));
         }, 0);
         return;
       }

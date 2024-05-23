@@ -74,8 +74,6 @@ exports.configure = bot => {
     takeOrderValidation,
     async ctx => {
       const text = ctx.update.callback_query.message.text;
-      console.log('takesell', text);
-      console.log(JSON.stringify(ctx.update));
       const orderId = extractId(text);
       if (!orderId) {
         logger.error('takesell: Invalid order id');

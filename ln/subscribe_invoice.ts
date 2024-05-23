@@ -115,6 +115,7 @@ export function subscribeToEscrowActions({
       is_bot: false,
     };
     await bot.handleUpdate({
+      ...{ __synthesized: true },
       update_id: 1,
       callback_query: {
         id: order._id?.toString(),

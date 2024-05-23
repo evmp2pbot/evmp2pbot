@@ -33,7 +33,11 @@ app.post('/:token', (req, res) => {
       return;
     }
     update.data = `extWalletRequestAddressResponse(${order._id},${walletAddress})`;
-    await bot.handleUpdate({ update_id: 1, callback_query: update });
+    await bot.handleUpdate({
+      ...{ __synthesized: true },
+      update_id: 1,
+      callback_query: update,
+    });
   })().catch(e =>
     logger.error(`Error when handling callback: ${e?.toString()} ${e?.stack}`)
   );
