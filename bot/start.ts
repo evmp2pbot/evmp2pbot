@@ -280,7 +280,7 @@ const initialize = (
     try {
       const user = await User.findOne({ tg_id: ctx.inlineQuery?.from.id });
       if (!user || user.banned) {
-        await ctx.answerInlineQuery([]);
+        await ctx.answerInlineQuery([], { is_personal: true });
         return;
       }
       const order = await Order.findOne({
@@ -289,33 +289,36 @@ const initialize = (
         creator_id: user._id,
       });
       if (!order) {
-        await ctx.answerInlineQuery([]);
+        await ctx.answerInlineQuery([], { is_personal: true });
         return;
       }
       const description = order.description;
-      await ctx.answerInlineQuery([
-        {
-          type: 'article',
-          id: order._id?.toString(),
-          title: `Order ${order._id}`,
-          description: `${order.type}ing ${
-            order.amount
-          } ${getTokenSymbol()} for ${order.fiat_amount} ${order.fiat_code}`,
-          input_message_content: {
-            message_text: description || 'Unknown order',
-          },
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: 'View order',
-                  url: `https://t.me/${ctx.botInfo.username}/order?startapp=${ctx.inlineQuery?.query}`,
-                },
+      await ctx.answerInlineQuery(
+        [
+          {
+            type: 'article',
+            id: order._id?.toString(),
+            title: `Order ${order._id}`,
+            description: `${order.type}ing ${
+              order.amount
+            } ${getTokenSymbol()} for ${order.fiat_amount} ${order.fiat_code}`,
+            input_message_content: {
+              message_text: description || 'Unknown order',
+            },
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'View order',
+                    url: `https://t.me/${ctx.botInfo.username}/order?startapp=${ctx.inlineQuery?.query}`,
+                  },
+                ],
               ],
-            ],
+            },
           },
-        },
-      ]);
+        ],
+        { is_personal: true }
+      );
     } catch (error) {
       logger.error(error);
     }
