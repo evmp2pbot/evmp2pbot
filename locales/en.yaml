@@ -153,6 +153,7 @@ begin_take_buy: >
 continue: Continue
 accept: Accept
 cancel: Cancel
+cancel_order: Cancel order
 pay_invoice: Please transfer of ${amount} $${tokenName()} to the escrow account to fulfill the order of
   ${fiatAmount} ${currency}.
 payment_received: >

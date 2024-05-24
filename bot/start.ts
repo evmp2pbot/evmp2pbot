@@ -71,6 +71,7 @@ import {
 } from './commands2';
 import { deleteOrderFromChannel } from './messages';
 import { Update } from 'telegraf/types';
+import { getTokenSymbol } from '../ln/evm';
 const {
   attemptPendingPayments,
   cancelOrders,
@@ -270,6 +271,51 @@ const initialize = (
 
       await messages.startMessage(ctx);
       await validateUser(ctx, true);
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  bot.inlineQuery(/^\w{24}$/, async (ctx: MainContext) => {
+    try {
+      const user = await User.findOne({ tg_id: ctx.inlineQuery?.from.id });
+      if (!user || user.banned) {
+        await ctx.answerInlineQuery([]);
+        return;
+      }
+      const order = await Order.findOne({
+        _id: ctx.inlineQuery?.query,
+        status: 'PENDING',
+        creator_id: user._id,
+      });
+      if (!order) {
+        await ctx.answerInlineQuery([]);
+        return;
+      }
+      const description = order.description;
+      await ctx.answerInlineQuery([
+        {
+          type: 'article',
+          id: order._id?.toString(),
+          title: `Order ${order._id}`,
+          description: `${order.type}ing ${
+            order.amount
+          } ${getTokenSymbol()} for ${order.fiat_amount} ${order.fiat_code}`,
+          input_message_content: {
+            message_text: description || 'Unknown order',
+          },
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: 'View order',
+                  url: `https://t.me/${ctx.botInfo.username}/order?startapp=${ctx.inlineQuery?.query}`,
+                },
+              ],
+            ],
+          },
+        },
+      ]);
     } catch (error) {
       logger.error(error);
     }

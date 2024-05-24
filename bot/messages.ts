@@ -221,8 +221,20 @@ const pendingSellMessage = async (
           inline_keyboard: [
             [
               {
-                text: i18n.t('cancel'),
+                text: i18n.t('cancel_order'),
                 callback_data: `cancel ${order._id?.toString()}`,
+              },
+            ],
+            [
+              {
+                text: 'Send order to chat',
+                switch_inline_query_chosen_chat: {
+                  query: order._id?.toString(),
+                  allow_bot_chats: false,
+                  allow_channel_chats: true,
+                  allow_user_chats: true,
+                  allow_group_chats: true,
+                },
               },
             ],
           ],
@@ -264,8 +276,20 @@ const pendingBuyMessage = async (
           inline_keyboard: [
             [
               {
-                text: i18n.t('cancel'),
+                text: i18n.t('cancel_order'),
                 callback_data: `cancel ${order._id?.toString()}`,
+              },
+            ],
+            [
+              {
+                text: 'Send order to chat',
+                switch_inline_query_chosen_chat: {
+                  query: order._id?.toString(),
+                  allow_bot_chats: false,
+                  allow_channel_chats: true,
+                  allow_user_chats: true,
+                  allow_group_chats: true,
+                },
               },
             ],
           ],
